@@ -19,41 +19,46 @@ def load_video(path:str) -> List[float]:
     return tf.cast((frames - mean), tf.float32) / std
 
 
-def get_phonems(path: str) -> List[str]:
-    """Get the file path of a phonem transcript and return a clean list with the truth phonems."""
+def get_transcript(path: str) -> List[str]:
+    """Get the file path of a transcript and return a clean list with the truth transcript."""
     with open(path, "r") as f:
         lines = f.readlines()
         lines = [line.split() for line in lines]
 
-    phonems = [line[1] for line in lines if len(line) > 1]
-    phonems = [phonem.replace("</s>", "") for phonem in phonems]
-    phonems = [phonem for phonem in phonems if len(phonem) > 0]
+    transcript = [line[1] for line in lines if len(line) > 1]
+    transcript = [char.replace("</s>", "") for char in transcript]
+    transcript = [char for char in transcript if len(char) > 0]
 
-    return phonems
+    return transcript
 
 
-def load_data(path: str, session: int, locutor: int, file: int):
+def load_data(path: str, locutor: int, file: int, format: str):
     """Load the frames and the phonems for a single video
     (i.e. a single sentence pronounced by a single locutor)
 
     inputs:
     >> path: the root path of the full database
-    >> session: 'I' or 'II'
     >> locutor: an integer between 1 and 8
     >> file: an integer between 1 and 238
+    >> format: 'p' for phonemes, 'l' for letters
     """
 
-    video_path = os.path.join(
-        path, f"Session {session}", f"Locuteur_{session}_{locutor}",
-        "videos", f"{file}_front.avi")
+    if file < 10:
+        file_str = f"00{file}"
+    elif file < 100:
+        file_str = f"0{file}"
+    else:
+        file_str = str(file)
+
+    if locutor < 10:
+        locutor_str = f"0{locutor}"
+    else:
+        locutor_str = str(locutor)
+
+    video_path = os.path.join(path, "videos", f"{file_str}_L{locutor_str}.avi")
     frames = load_video(video_path)
 
-    locutor_path = os.path.join(
-        path, f"Session {session}", f"Locuteur_{session}_{locutor}")
-    session_dirs = os.listdir(locutor_path)
-    lab_dir = [dir for dir in session_dirs if "phone" in dir.lower()][0]
+    transcript_path = os.path.join(path, "transcripts", f"{format}_{file_str}.txt")
+    transcript = get_transcript(transcript_path)
 
-    phonems_path = os.path.join(locutor_path, lab_dir, f"{file}.txt")
-    phonems = get_phonems(phonems_path)
-
-    return frames, phonems
+    return frames, transcript
