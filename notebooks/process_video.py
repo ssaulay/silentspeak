@@ -11,9 +11,12 @@ def load_video(path:str) -> List[float]:
     for _ in range(int(cap.get(cv2.CAP_PROP_FRAME_COUNT))):
         ret, frame = cap.read()
         frame = tf.image.rgb_to_grayscale(frame)
-        frames.append(frame)
+        frames.append(frame[350:500,230:530,:])
     cap.release()
-    return frames
+
+    mean = tf.math.reduce_mean(frames)
+    std = tf.math.reduce_std(tf.cast(frames, tf.float32))
+    return tf.cast((frames - mean), tf.float32) / std
 
 
 def get_phonems(path: str) -> List[str]:
