@@ -1,8 +1,8 @@
+.DS_Store
+
 #raw data
 /raw_data
 /.DS_Store
-
-
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
