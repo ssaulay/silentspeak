@@ -4,13 +4,14 @@ import numpy as np
 import pandas as pd
 from os import walk
 
-filenames = next(walk('/home/clement/code/ssaulay/silentspeak/drafts/data/patient0'), (None, None, []))[2]
-name_csv = []
+filenames = next(walk('/home/clement/code/ssaulay/silentspeak/drafts/data/sample_data/videos'), (None, None, []))[2] ### CHANGE FOR PRODUCTION
+path_csv_normalize = "/home/clement/code/ssaulay/silentspeak/drafts/data/sample_data/csv/normalize/" ### CHANGE FOR PRODUCTION
+path_csv_non_normalize = "/home/clement/code/ssaulay/silentspeak/drafts/data/sample_data/csv/non_normalize/" ### CHANGE FOR PRODUCTION
 
+name_csv = []
 for filename in filenames:
 
-    path = f"/home/clement/code/ssaulay/silentspeak/drafts/data/patient0/{filename}"
-    # path = '/home/clement/code/ssaulay/silentspeak/patient0/14_front - 0.avi'
+    path = f"/home/clement/code/ssaulay/silentspeak/drafts/data/sample_data/videos/{filename}"  ### CHANGE FOR PRODUCTION
     cap = cv2.VideoCapture(path)
     NUM_FACE = 2
     mp_face_mesh = mp.solutions.face_mesh
@@ -29,7 +30,7 @@ for filename in filenames:
             # Convert the BGR frame to RGB and process it
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-            # Process the frame using MediaPipe
+            # Process the frame using MediaPiSpe
             results = face_mesh.process(rgb_frame)
 
             # Draw the face landmarks on the frame
@@ -90,12 +91,6 @@ for filename in filenames:
                 hull = cv2.convexHull(np.array(mouth_landmarks))
                 cv2.drawContours(annotated_frame, [hull], -1, (0, 255, 0), 2)
 
-            # Identify mouth using haar-based classifiers
-            # mouth_cascade = cv2.CascadeClassifier('/home/clement/code/SimpleCV/SimpleCV/Features/HaarCascades/face.xml')
-            # mouth = mouth_cascade.detectMultiScale(rgb_frame, 1.5, 11)
-            # for(mx, my, mw, mh) in mouth:
-            #     cv2.rectangle(annotated_frame, (mx, my), (mx+mw, my+mh), (255, 0, 0), 2)
-
             # Show the video
             # cv2.imshow('Mouth Capture', annotated_frame)
 
@@ -110,10 +105,27 @@ for filename in filenames:
     df = pd.DataFrame(coordinates_by_frames_array)
     df.rename(columns={0:'frame', 1:'point', 2:'x', 3:'y', 4:'z'}, inplace=True)
 
-    path_csv = "/home/clement/code/ssaulay/silentspeak/drafts/data/csv/"
     # Create csv non-scale
-    name_csv = path_csv+filename[:-4]+".csv"
+    name_csv = path_csv_non_normalize+filename[:-4]+".csv"
     df.to_csv(name_csv, index=False)
+
+    # Dataframe scaled
+    df_scale = df
+    for i in range(0, df_scale['frame'].nunique()):
+        # Get reference coordinates for ID 6 (at each frame)
+        ref_x = df_scale.loc[df_scale['point'] == 6, 'x'].values[i]
+        ref_y = df_scale.loc[df_scale['point'] == 6, 'y'].values[i]
+        ref_z = df_scale.loc[df_scale['point'] == 6, 'z'].values[i]
+
+        # Compute difference between coordinates (at each frame)
+        df_scale['x'][df_scale['frame']==i+1] = df_scale['x'][df_scale['frame']==i+1] - ref_x
+        df_scale['y'][df_scale['frame']==i+1] = df_scale['y'][df_scale['frame']==i+1] - ref_y
+        df_scale['z'][df_scale['frame']==i+1] = df_scale['z'][df_scale['frame']==i+1] - ref_z
+
+        # Create csv scaled
+        name_csv_scaled = path_csv_normalize+filename[:-4]+"_scaled"+".csv"
+        df_scale.to_csv(name_csv_scaled, index=False)
+
 
     cap.release()
     cv2.destroyAllWindows()
