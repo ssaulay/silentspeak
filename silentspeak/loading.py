@@ -3,7 +3,7 @@ import tensorflow as tf
 from typing import List
 import os
 import numpy as np
-from params import vocab_type, vocab_phonemes, vocab_letters
+from silentspeak.params import vocab_type, vocab_phonemes, vocab_letters
 
 
 if vocab_type == "p":
