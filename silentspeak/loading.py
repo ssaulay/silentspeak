@@ -57,8 +57,11 @@ def load_data(video_path: str):
     >> video_path: the path of a video
     """
 
-    #video_path = bytes.decode(video_path.numpy())
-    frames = load_video(video_path)
+    try:
+        frames = load_video(video_path)
+    except:
+        video_path = bytes.decode(video_path.numpy())
+        frames = load_video(video_path)
     id_code = video_path[-11:][:7]
 
     transcript_path = os.path.join(video_path[:-11], "..", "transcripts", f"{vocab_type}_{id_code}.txt")
