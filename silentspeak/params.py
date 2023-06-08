@@ -1,4 +1,9 @@
 
+# -------- DATA PATH --------
+data_path = ""
+
+# -------- VOCAB --------
+
 vocab_type = "p" # "p" for phonemes / "l" for letters
 
 vocab_phonemes = [
