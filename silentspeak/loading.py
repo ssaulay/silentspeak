@@ -14,7 +14,7 @@ def load_video(path:str) -> List[float]:
         frame = tf.image.rgb_to_grayscale(frame[350:500,230:530,:])
         frame = cv2.resize(frame.numpy().squeeze(),(150,75),interpolation=cv2.INTER_LANCZOS4)
         frame = np.expand_dims(frame, -1)
-        frames.append(frame)
+        frames.append(tf.convert_to_tensor(frame))
     cap.release()
 
     mean = tf.math.reduce_mean(frames)
