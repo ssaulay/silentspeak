@@ -1,6 +1,21 @@
+import os
 
-# -------- DATA PATH --------
-data_path = ""
+
+# -------- MODE --------
+
+data_source = "local" # "local" or "gcp"
+data_size = "sample_data" # "data" or "sample_data"
+
+# -------- LOCAL DATA PATH --------
+
+local_data_path = os.environ.get("LOCAL_DATA_PATH")
+
+# -------- GCP & CLOUD STORAGE --------
+
+gcp_project = os.environ.get("GCP_PROJECT")
+gcp_region = os.environ.get("GCP_REGION")
+bucket_name = os.environ.get("BUCKET_NAME")
+#instance = os.environ.get("INSTANCE") # uncomment when vm is defined
 
 # -------- VOCAB --------
 
