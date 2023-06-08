@@ -1,3 +1,6 @@
+
+vocab_type = "p" # "p" for phonemes / "l" for letters
+
 vocab_phonemes = [
     "a", "deux", "i", "O", "E", "S", "Z", "N", "o", "u",
     "y", "e", "w", "a~", "U~", "o~", "neuf", "p", "t", "k",
