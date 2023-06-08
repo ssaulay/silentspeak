@@ -2,7 +2,20 @@ import cv2
 import tensorflow as tf
 from typing import List
 import os
+import numpy as np
+from params import vocab_type, vocab_phonemes, vocab_letters
 
+
+if vocab_type == "p":
+    vocab = vocab_phonemes
+else:
+    vocab = vocab_letters
+
+
+char_to_num = tf.keras.layers.StringLookup(vocabulary=vocab, oov_token="")
+num_to_char = tf.keras.layers.StringLookup(
+    vocabulary=char_to_num.get_vocabulary(), oov_token="", invert=True
+)
 
 def load_video(path:str) -> List[float]:
 
@@ -10,13 +23,17 @@ def load_video(path:str) -> List[float]:
     frames = []
     for _ in range(int(cap.get(cv2.CAP_PROP_FRAME_COUNT))):
         ret, frame = cap.read()
-        frame = tf.image.rgb_to_grayscale(frame)
-        frames.append(frame[350:500,230:530,:])
+        frame = tf.image.rgb_to_grayscale(frame[350:500,230:530,:])
+        frame = cv2.resize(frame.numpy().squeeze(),(150,75),interpolation=cv2.INTER_LANCZOS4)
+        frame = np.expand_dims(frame, -1)
+        frames.append(tf.convert_to_tensor(frame))
     cap.release()
 
     mean = tf.math.reduce_mean(frames)
     std = tf.math.reduce_std(tf.cast(frames, tf.float32))
-    return tf.cast((frames - mean), tf.float32) / std
+    frames = tf.cast((frames - mean), tf.float32) / std
+
+    return frames
 
 
 def get_transcript(path: str) -> List[str]:
@@ -29,36 +46,22 @@ def get_transcript(path: str) -> List[str]:
     transcript = [char.replace("</s>", "") for char in transcript]
     transcript = [char for char in transcript if len(char) > 0]
 
-    return transcript
+    return char_to_num(transcript)
 
 
-def load_data(path: str, locutor: int, file: int, format: str):
+def load_data(video_path: str):
     """Load the frames and the phonems for a single video
     (i.e. a single sentence pronounced by a single locutor)
 
     inputs:
-    >> path: the root path of the full database
-    >> locutor: an integer between 1 and 8
-    >> file: an integer between 1 and 238
-    >> format: 'p' for phonemes, 'l' for letters
+    >> video_path: the path of a video
     """
 
-    if file < 10:
-        file_str = f"00{file}"
-    elif file < 100:
-        file_str = f"0{file}"
-    else:
-        file_str = str(file)
-
-    if locutor < 10:
-        locutor_str = f"0{locutor}"
-    else:
-        locutor_str = str(locutor)
-
-    video_path = os.path.join(path, "videos", f"{file_str}_L{locutor_str}.avi")
+    #video_path = bytes.decode(video_path.numpy())
     frames = load_video(video_path)
+    id_code = video_path[-11:][:7]
 
-    transcript_path = os.path.join(path, "transcripts", f"{format}_{file_str}.txt")
+    transcript_path = os.path.join(video_path[:-11], "..", "transcripts", f"{vocab_type}_{id_code}.txt")
     transcript = get_transcript(transcript_path)
 
     return frames, transcript
