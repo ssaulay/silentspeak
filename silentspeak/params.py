@@ -15,6 +15,7 @@ data_size = "sample_data" # "data" or "sample_data"
 # -------- LOCAL DATA PATH --------
 
 local_data_path = os.environ.get("LOCAL_DATA_PATH")
+test_local_video = os.environ.get("TEST_LOCAL_VIDEO")
 
 # -------- GCP & CLOUD STORAGE --------
 
