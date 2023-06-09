@@ -2,11 +2,17 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import pandas as pd
+import os
+
+from pathlib import Path
 from os import walk
 
-filenames = next(walk('/home/clement/code/ssaulay/silentspeak/drafts/data/sample_data/videos'), (None, None, []))[2] ### CHANGE FOR PRODUCTION
-path_csv_normalize = "/home/clement/code/ssaulay/silentspeak/drafts/data/sample_data/csv/normalize/" ### CHANGE FOR PRODUCTION
-path_csv_non_normalize = "/home/clement/code/ssaulay/silentspeak/drafts/data/sample_data/csv/non_normalize/" ### CHANGE FOR PRODUCTION
+
+ROOT = str(Path(os.getcwd()).resolve().parents[2])
+
+filenames = next(walk(ROOT+'/silentspeak/drafts/data/sample_data/videos'), (None, None, []))[2] ### CHANGE FOR PRODUCTION
+path_csv_normalize = ROOT+"/silentspeak/drafts/data/sample_data/csv/normalize/" ### CHANGE FOR PRODUCTION
+path_csv_non_normalize = ROOT+"/silentspeak/drafts/data/sample_data/csv/non_normalize/" ### CHANGE FOR PRODUCTION
 
 name_csv = []
 for filename in filenames:
@@ -20,6 +26,7 @@ for filename in filenames:
     drawSpec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 
     coordinates_by_frames = []
+
     with mp_face_mesh.FaceMesh() as face_mesh:
         while cap.isOpened():
             ret, frame = cap.read()
@@ -28,7 +35,7 @@ for filename in filenames:
 
 
             # Convert the BGR frame to RGB and process it
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2XYZ)
 
             # Process the frame using MediaPiSpe
             results = face_mesh.process(rgb_frame)
@@ -60,6 +67,7 @@ for filename in filenames:
             if results.multi_face_landmarks:
                 landmarks = results.multi_face_landmarks[0]
 
+
                 for id, landmark in enumerate(landmarks.landmark):
 
                     # Extract only the mouth landmarks (IDs in mouth_ids)
@@ -86,6 +94,7 @@ for filename in filenames:
                         coordinates_by_frames.append(landmark.y)
                         coordinates_by_frames.append(landmark.z)
 
+
             # Draw the mouth region
             if mouth_landmarks:
                 hull = cv2.convexHull(np.array(mouth_landmarks))
@@ -105,6 +114,10 @@ for filename in filenames:
     df = pd.DataFrame(coordinates_by_frames_array)
     df.rename(columns={0:'frame', 1:'point', 2:'x', 3:'y', 4:'z'}, inplace=True)
 
+    # Add sentence and speaker
+    df['sentence'] = filename[:-8]
+    df['speaker'] = filename[4:-4]
+
     # Create csv non-scale
     name_csv = path_csv_non_normalize+filename[:-4]+".csv"
     df.to_csv(name_csv, index=False)
@@ -122,9 +135,9 @@ for filename in filenames:
         df_scale['y'][df_scale['frame']==i+1] = df_scale['y'][df_scale['frame']==i+1] - ref_y
         df_scale['z'][df_scale['frame']==i+1] = df_scale['z'][df_scale['frame']==i+1] - ref_z
 
-        # Create csv scaled
-        name_csv_scaled = path_csv_normalize+filename[:-4]+"_scaled"+".csv"
-        df_scale.to_csv(name_csv_scaled, index=False)
+        # Create csv normalize
+        name_csv_normalize = path_csv_normalize+filename[:-4]+"_normalize"+".csv"
+        df_scale.to_csv(name_csv_normalize, index=False)
 
 
     cap.release()
