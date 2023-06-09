@@ -96,12 +96,26 @@ def load_and_compile_model():
     return model
 
 
-def predict_test():
+def predict_test(
+    model = None,
+    path: str = test_local_video):
 
-    model = load_and_compile_model()
+    if model is None:
+        model = load_and_compile_model()
 
-    model.load_weights(os.path.join(models_path, "checkpoint"))
-    sample = load_data(tf.convert_to_tensor(test_local_video))
+    sample = load_data(tf.convert_to_tensor(path))
+
+    print(" ####### PAD VIDEOS #######")
+
+    paddings = tf.constant([[n_frames-sample[0].shape[0], 0], [0, 0], [0, 0], [0, 0]])
+    sample = tf.pad(sample[0], paddings)
+
+    print(f"sample shape : {sample.shape}")
+
+    if model is None:
+        print(" ####### LOAD WEIGHTS #######")
+        model.load_weights(os.path.join(models_path, "checkpoint"))
+
     yhat = model.predict(tf.expand_dims(sample[0], axis=0))
     decoded = tf.keras.backend.ctc_decode(yhat, input_length=[n_frames], greedy=True)[0][0].numpy()
 

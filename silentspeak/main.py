@@ -64,12 +64,14 @@ def train(
         callbacks = callbacks
         )
 
+    return model
+
 
 if __name__ == '__main__':
     # download_data
     # preprocess
-    #train(epochs = 2)
-    predict_test()
+    model = train(epochs = 2)
+    predict_test(model = model)
     # evaluate
     # pred
     pass
