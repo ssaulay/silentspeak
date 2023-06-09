@@ -4,8 +4,8 @@ import os
 # -------- MODEL PARAMS --------
 
 n_frames = 115
-frame_h = 75 # --> 54
-frame_w = 150 # --> 80
+frame_h = 54 # --> 54
+frame_w = 80 # --> 80
 
 # -------- MODE --------
 
