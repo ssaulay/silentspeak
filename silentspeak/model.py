@@ -7,6 +7,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
 from silentspeak.params import vocab_type, vocab_phonemes, vocab_letters, n_frames, frame_h, frame_w, data_source, local_data_path, instance_data_path
+from silentspeak.loading import char_to_num
 
 
 if data_source == "local":
@@ -80,8 +81,8 @@ def load_and_compile_model():
     model.add(Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)))
     model.add(Dropout(.5))
 
-    #model.add(Dense(char_to_num.vocabulary_size()+1, kernel_initializer='he_normal', activation='softmax'))
-    model.add(Dense(vocab_size, kernel_initializer='he_normal', activation='softmax'))
+    model.add(Dense(char_to_num.vocabulary_size()+1, kernel_initializer='he_normal', activation='softmax'))
+    #model.add(Dense(vocab_size, kernel_initializer='he_normal', activation='softmax'))
 
     print(model.summary())
 

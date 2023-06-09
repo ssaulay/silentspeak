@@ -49,8 +49,8 @@ def train(
     #sample = data.as_numpy_iterator()
 
     # Added for split
-    train = data.take(train_size)
-    test = data.skip(train_size)
+    # train = data.take(train_size)
+    # test = data.skip(train_size)
 
     print("###### Load and compile model ######")
 

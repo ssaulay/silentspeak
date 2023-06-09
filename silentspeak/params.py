@@ -3,7 +3,7 @@ import os
 
 # -------- MODEL PARAMS --------
 
-n_frames = 150
+n_frames = 115
 frame_h = 75 # --> 54
 frame_w = 150 # --> 80
 
