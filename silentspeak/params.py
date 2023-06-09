@@ -1,6 +1,12 @@
 import os
 
 
+# -------- MODEL PARAMS --------
+
+n_frames = 75
+frame_h = 75 # --> 54
+frame_w = 150 # --> 80
+
 # -------- MODE --------
 
 data_source = "local" # "local" or "gcp"
@@ -16,6 +22,7 @@ gcp_project = os.environ.get("GCP_PROJECT")
 gcp_region = os.environ.get("GCP_REGION")
 bucket_name = os.environ.get("BUCKET_NAME")
 #instance = os.environ.get("INSTANCE") # uncomment when vm is defined
+instance_data_path = os.environ.get("INSTANCE_DATA_PATH")
 
 # -------- VOCAB --------
 
