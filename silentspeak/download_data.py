@@ -1,9 +1,8 @@
 # import des librairies
 from google.cloud import storage
+from silentspeak.params import bucket_name
 import os
 
-
-bucket_name='silentspeak_raw_data'
 
 # on instancie
 client = storage.Client()
@@ -58,5 +57,5 @@ def download_files(bucket_name='silentspeak_raw_data',dataset="sample_data",data
 
 #code à executer  pour downloader les transcripts du dossier sample data
 
-download_files(bucket_name='silentspeak_raw_data',dataset="sample_data",datatype="transcripts")
-print("done")
+#download_files(bucket_name='silentspeak_raw_data',dataset="sample_data",datatype="transcripts")
+#print("done")
