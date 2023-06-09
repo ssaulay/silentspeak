@@ -58,8 +58,7 @@ def download_files(bucket_name='silentspeak_raw_data',dataset="sample_data",data
 #            print(f"Telecharge {download_path}")
 #        else : print(f"Fichier déjà présent")
 
-
 #code à executer  pour downloader les transcripts du dossier sample data
 
-#download_files(bucket_name='silentspeak_raw_data',dataset="sample_data",datatype="transcripts")
+download_files(bucket_name='silentspeak_raw_data',dataset="sample_data",datatype="transcripts")
 #print("done")
