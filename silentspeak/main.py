@@ -68,7 +68,7 @@ def train(
 if __name__ == '__main__':
     # download_data
     # preprocess
-    print(train())
+    train(epochs = 2)
     # evaluate
     # pred
     pass

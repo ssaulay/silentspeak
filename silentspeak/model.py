@@ -1,5 +1,6 @@
 import os
 
+import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv3D, LSTM, Dense, Dropout, Bidirectional, MaxPool3D, Activation, Reshape, SpatialDropout3D, BatchNormalization, TimeDistributed, Flatten
 from tensorflow.keras.optimizers import Adam
@@ -80,7 +81,7 @@ def load_and_compile_model():
     model.add(Dropout(.5))
 
     #model.add(Dense(char_to_num.vocabulary_size()+1, kernel_initializer='he_normal', activation='softmax'))
-    model.add(Dense({vocab_size}, kernel_initializer='he_normal', activation='softmax'))
+    model.add(Dense(vocab_size, kernel_initializer='he_normal', activation='softmax'))
 
     print(model.summary())
 
