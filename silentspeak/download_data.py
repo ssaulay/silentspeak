@@ -53,10 +53,10 @@ def download_files(bucket_name='silentspeak_raw_data',dataset="sample_data",data
         download_path = os.path.join("raw_data", blob_url)
         if not os.path.exists(download_path):
             blob.download_to_filename(download_path)
- #           print(f"Telecharge {download_path}")
- #       else :
- #           print("fichier déjà present")
+#decommenter pour afficher le verbose
 
+#            print(f"Telecharge {download_path}")
+#        else : print(f"Fichier déjà présent")
 
 #code à executer  pour downloader les transcripts du dossier sample data
 

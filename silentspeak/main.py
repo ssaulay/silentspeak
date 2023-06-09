@@ -4,7 +4,7 @@ import numpy as np
 
 from silentspeak.loading import *
 from silentspeak.params import local_data_path, instance_data_path, data_size, data_source, n_frames
-from silentspeak.model import load_and_compile_model, checkpoint_callback, schedule_callback
+from silentspeak.model import load_and_compile_model, checkpoint_callback, schedule_callback, predict_test
 
 
 if data_source == "local":
@@ -49,8 +49,8 @@ def train(
     #sample = data.as_numpy_iterator()
 
     # Added for split
-    train = data.take(train_size)
-    test = data.skip(train_size)
+    # train = data.take(train_size)
+    # test = data.skip(train_size)
 
     print("###### Load and compile model ######")
 
@@ -64,11 +64,14 @@ def train(
         callbacks = callbacks
         )
 
+    return model
+
 
 if __name__ == '__main__':
     # download_data
     # preprocess
-    print(train())
+    model = train(epochs = 2)
+    predict_test(model = model)
     # evaluate
     # pred
     pass

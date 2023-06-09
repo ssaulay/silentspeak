@@ -1,11 +1,13 @@
 import os
 
+import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv3D, LSTM, Dense, Dropout, Bidirectional, MaxPool3D, Activation, Reshape, SpatialDropout3D, BatchNormalization, TimeDistributed, Flatten
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
-from silentspeak.params import vocab_type, vocab_phonemes, vocab_letters, n_frames, frame_h, frame_w, data_source, local_data_path, instance_data_path
+from silentspeak.params import vocab_type, vocab_phonemes, vocab_letters, n_frames, frame_h, frame_w, data_source, local_data_path, instance_data_path, test_local_video
+from silentspeak.loading import char_to_num, num_to_char, load_data
 
 
 if data_source == "local":
@@ -79,8 +81,8 @@ def load_and_compile_model():
     model.add(Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)))
     model.add(Dropout(.5))
 
-    #model.add(Dense(char_to_num.vocabulary_size()+1, kernel_initializer='he_normal', activation='softmax'))
-    model.add(Dense({vocab_size}, kernel_initializer='he_normal', activation='softmax'))
+    model.add(Dense(char_to_num.vocabulary_size()+1, kernel_initializer='he_normal', activation='softmax'))
+    #model.add(Dense(vocab_size, kernel_initializer='he_normal', activation='softmax'))
 
     print(model.summary())
 
@@ -92,3 +94,28 @@ def load_and_compile_model():
         )
 
     return model
+
+
+def predict_test(
+    model = None,
+    path: str = test_local_video):
+
+    if model is None:
+        model = load_and_compile_model()
+        print(" ####### LOAD WEIGHTS #######")
+        model.load_weights(os.path.join(models_path, "checkpoint"))
+
+    sample = load_data(tf.convert_to_tensor(path))
+
+    print(" ####### PAD VIDEOS #######")
+
+    paddings = tf.constant([[n_frames-sample[0].shape[0], 0], [0, 0], [0, 0], [0, 0]])
+    sample = tf.pad(sample[0], paddings)
+
+    print(f"sample shape : {sample.shape}")
+
+    yhat = model.predict(tf.expand_dims(sample[0], axis=0))
+    decoded = tf.keras.backend.ctc_decode(yhat, input_length=[n_frames], greedy=True)[0][0].numpy()
+
+    print('~'*100, 'PREDICTIONS')
+    [tf.strings.reduce_join([num_to_char(word) for word in sentence]) for sentence in decoded]

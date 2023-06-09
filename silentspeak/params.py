@@ -3,9 +3,9 @@ import os
 
 # -------- MODEL PARAMS --------
 
-n_frames = 75
-frame_h = 75 # --> 54
-frame_w = 150 # --> 80
+n_frames = 115
+frame_h = 54 # --> 54
+frame_w = 80 # --> 80
 
 # -------- MODE --------
 
@@ -15,6 +15,7 @@ data_size = "sample_data" # "data" or "sample_data"
 # -------- LOCAL DATA PATH --------
 
 local_data_path = os.environ.get("LOCAL_DATA_PATH")
+test_local_video = os.environ.get("TEST_LOCAL_VIDEO")
 
 # -------- GCP & CLOUD STORAGE --------
 
