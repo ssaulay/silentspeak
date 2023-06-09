@@ -4,7 +4,7 @@ from typing import List
 import os
 import numpy as np
 from silentspeak.params import vocab_type, vocab_phonemes, vocab_letters, frame_h, frame_w
-
+from silentspeak.bounding_box import bounding_box
 
 if vocab_type == "p":
     vocab = vocab_phonemes
@@ -18,12 +18,12 @@ num_to_char = tf.keras.layers.StringLookup(
 )
 
 def load_video(path:str) -> List[float]:
-
+    y_px_min, y_px_max, x_px_min, x_px_max = bounding_box(path=path)
     cap = cv2.VideoCapture(path)
     frames = []
     for _ in range(int(cap.get(cv2.CAP_PROP_FRAME_COUNT))):
         ret, frame = cap.read()
-        frame = tf.image.rgb_to_grayscale(frame[350:500,230:530,:])
+        frame = tf.image.rgb_to_grayscale(frame[y_px_min:y_px_max,x_px_min:x_px_max,:])
         frame = cv2.resize(frame.numpy().squeeze(),(frame_w,frame_h),interpolation=cv2.INTER_LANCZOS4)
         frame = np.expand_dims(frame, -1)
         frames.append(tf.convert_to_tensor(frame))
