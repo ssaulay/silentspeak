@@ -24,6 +24,7 @@ bucket_name = os.environ.get("BUCKET_NAME")
 #instance = os.environ.get("INSTANCE") # uncomment when vm is defined
 instance_data_path = os.environ.get("INSTANCE_DATA_PATH")
 
+
 # -------- VOCAB --------
 
 vocab_type = "p" # "p" for phonemes / "l" for letters

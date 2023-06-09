@@ -1,0 +1,13 @@
+pytest
+pylint
+ipdb
+jupyterlab
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+
+# Landmark --
+# opencv-python
+# mediapipe
