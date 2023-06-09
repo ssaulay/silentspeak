@@ -2,6 +2,7 @@
 from silentspeak.params import local_data_path
 from silentspeak.params import instance_data_path
 from silentspeak.params import data_source
+from silentspeak.download_data import *
 
 if data_source == "local":
     data_path = local_data_path
