@@ -1,5 +1,6 @@
 # import des librairies
 from google.cloud import storage
+import os
 
 
 bucket_name='silentspeak_raw_data'
@@ -49,9 +50,13 @@ def download_files(bucket_name='silentspeak_raw_data',dataset="sample_data",data
     for blob_url in liste:
         blob = bucket.blob(blob_url)
         # Télécharge le fichier avec le même nom que celui du blob
-        blob.download_to_filename(blob_url)
+        #blob.download_to_filename(blob_url)
+        download_path = os.path.join("raw_data", blob_url)
+        blob.download_to_filename(download_path)
+        print(download_path)
 
 
 #code à executer  pour downloader les transcripts du dossier sample data
 
-#download_files(bucket_name='silentspeak_raw_data',dataset="sample_data",datatype="videos")
+download_files(bucket_name='silentspeak_raw_data',dataset="sample_data",datatype="transcripts")
+print("done")
