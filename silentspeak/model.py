@@ -49,6 +49,8 @@ checkpoint_callback = ModelCheckpoint(
     save_weights_only = True
     )
 
+schedule_callback = LearningRateScheduler(scheduler)
+
 
 def load_and_compile_model():
 
@@ -84,6 +86,9 @@ def load_and_compile_model():
 
     print("###### Compiling model ######")
 
-    model.compile(optimizer=Adam(learning_rate=0.0001), loss=CTCLoss)
+    model.compile(
+        optimizer=Adam(learning_rate=0.0001),
+        loss=CTCLoss
+        )
 
     return model

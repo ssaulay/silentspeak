@@ -4,13 +4,15 @@ import numpy as np
 
 from silentspeak.loading import *
 from silentspeak.params import local_data_path, instance_data_path, data_size, data_source, n_frames
-from silentspeak.model import load_and_compile_model
+from silentspeak.model import load_and_compile_model, checkpoint_callback, schedule_callback
+
 
 if data_source == "local":
     data_path = local_data_path
 else:
     data_path = instance_data_path
     pass
+
 
 def mappable_function(path:str) ->List[str]:
     """
@@ -22,7 +24,7 @@ def mappable_function(path:str) ->List[str]:
 
 
 def train(
-    epochs = 10
+    epochs = 10,
     batch_size = 2,
     padded_frames_shape = [n_frames,None,None,None],
     padded_transcripts_shape = [50],
