@@ -102,6 +102,8 @@ def predict_test(
 
     if model is None:
         model = load_and_compile_model()
+        print(" ####### LOAD WEIGHTS #######")
+        model.load_weights(os.path.join(models_path, "checkpoint"))
 
     sample = load_data(tf.convert_to_tensor(path))
 
@@ -111,10 +113,6 @@ def predict_test(
     sample = tf.pad(sample[0], paddings)
 
     print(f"sample shape : {sample.shape}")
-
-    if model is None:
-        print(" ####### LOAD WEIGHTS #######")
-        model.load_weights(os.path.join(models_path, "checkpoint"))
 
     yhat = model.predict(tf.expand_dims(sample[0], axis=0))
     decoded = tf.keras.backend.ctc_decode(yhat, input_length=[n_frames], greedy=True)[0][0].numpy()
