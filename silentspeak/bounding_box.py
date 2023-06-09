@@ -63,13 +63,14 @@ def bounding_box(path:str):
         cv2.destroyAllWindows()
 
     x_px_min = min(math.floor(min(x_61) * width), width - 1) - round(0.02 * min(math.floor(max(x_61) * width), width - 1))
-    y_px_min = min(math.floor(max(y_61) * height), height - 1)
+    y_px_max = min(math.floor(max(y_61) * height), height - 1)
     x_px_max = min(math.floor(max(x_291) * width), width - 1) + round(0.02 * min(math.floor(max(x_291)* width), width - 1))
-    y_px_max = min(math.floor(max(y_291) * height), height - 1)
+    y_px_min = min(math.floor(max(y_291) * height), height - 1)
 
     Lb = x_px_max - x_px_min
     Hb = round(54/80 * Lb)
 
-    y_px_min = round(y_px_min + Hb/2)
-    y_px_max = round(y_px_max - Hb/2)
-    return x_px_min, y_px_min, x_px_max, y_px_max
+    y_px_max = round(y_px_max + Hb/2)
+    y_px_min = round(y_px_min - Hb/2)
+
+    return y_px_min, y_px_max, x_px_min, x_px_max

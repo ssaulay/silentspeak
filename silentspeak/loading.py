@@ -18,12 +18,12 @@ num_to_char = tf.keras.layers.StringLookup(
 )
 
 def load_video(path:str) -> List[float]:
-    x_px_min, y_px_min, x_px_max, y_px_max = bounding_box(path=path)
+    y_px_min, y_px_max, x_px_min, x_px_max = bounding_box(path=path)
     cap = cv2.VideoCapture(path)
     frames = []
     for _ in range(int(cap.get(cv2.CAP_PROP_FRAME_COUNT))):
         ret, frame = cap.read()
-        frame = tf.image.rgb_to_grayscale(frame[x_px_min:y_px_min,x_px_max:y_px_max,:])
+        frame = tf.image.rgb_to_grayscale(frame[y_px_min:y_px_max,x_px_min:x_px_max,:])
         frame = cv2.resize(frame.numpy().squeeze(),(frame_w,frame_h),interpolation=cv2.INTER_LANCZOS4)
         frame = np.expand_dims(frame, -1)
         frames.append(tf.convert_to_tensor(frame))
