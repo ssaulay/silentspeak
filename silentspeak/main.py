@@ -49,8 +49,8 @@ def train(
     #sample = data.as_numpy_iterator()
 
     # Added for split
-    train = data.take(train_size)
-    test = data.skip(train_size)
+    # train = data.take(train_size)
+    # test = data.skip(train_size)
 
     print("###### Load and compile model ######")
 
@@ -68,7 +68,7 @@ def train(
 if __name__ == '__main__':
     # download_data
     # preprocess
-    print(train())
+    train(epochs = 2)
     # evaluate
     # pred
     pass
