@@ -1,6 +1,12 @@
 import os
 
 
+# -------- MODEL PARAMS --------
+
+n_frames = 75
+frame_h = 75 # --> 54
+frame_w = 150 # --> 80
+
 # -------- MODE --------
 
 data_source = "local" # "local" or "gcp"

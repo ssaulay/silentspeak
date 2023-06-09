@@ -3,14 +3,16 @@ import tensorflow as tf
 import numpy as np
 
 from silentspeak.loading import *
-from silentspeak.params import local_data_path, data_size, data_source
-from silentspeak.model import load_model
+from silentspeak.params import local_data_path, instance_data_path, data_size, data_source, n_frames
+from silentspeak.model import load_and_compile_model, checkpoint_callback, schedule_callback
+
 
 if data_source == "local":
     data_path = local_data_path
 else:
-    #data_path = # THE PATH OF RAW DATA ON THE VM INSTANCE
+    data_path = instance_data_path
     pass
+
 
 def mappable_function(path:str) ->List[str]:
     """
@@ -22,10 +24,12 @@ def mappable_function(path:str) ->List[str]:
 
 
 def train(
+    epochs = 10,
     batch_size = 2,
-    padded_frames_shape = [75,None,None,None],
+    padded_frames_shape = [n_frames,None,None,None],
     padded_transcripts_shape = [50],
-    train_size = 10
+    train_size = 10,
+    callbacks = [checkpoint_callback, schedule_callback]
 ):
     """
     Train the model
@@ -48,13 +52,21 @@ def train(
     train = data.take(train_size)
     test = data.skip(train_size)
 
+    print("###### Load and compile model ######")
 
-    model = load_model()
-    # >>>> Reprendre ici
+    model = load_and_compile_model()
 
+    print("###### Train model ######")
+
+    model.fit(
+        data,
+        epochs = epochs,
+        callbacks = callbacks
+        )
 
 
 if __name__ == '__main__':
+    # download_data
     # preprocess
     print(train())
     # evaluate

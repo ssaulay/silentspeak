@@ -3,7 +3,7 @@ import tensorflow as tf
 from typing import List
 import os
 import numpy as np
-from silentspeak.params import vocab_type, vocab_phonemes, vocab_letters
+from silentspeak.params import vocab_type, vocab_phonemes, vocab_letters, frame_h, frame_w
 
 
 if vocab_type == "p":
@@ -24,7 +24,7 @@ def load_video(path:str) -> List[float]:
     for _ in range(int(cap.get(cv2.CAP_PROP_FRAME_COUNT))):
         ret, frame = cap.read()
         frame = tf.image.rgb_to_grayscale(frame[350:500,230:530,:])
-        frame = cv2.resize(frame.numpy().squeeze(),(150,75),interpolation=cv2.INTER_LANCZOS4)
+        frame = cv2.resize(frame.numpy().squeeze(),(frame_w,frame_h),interpolation=cv2.INTER_LANCZOS4)
         frame = np.expand_dims(frame, -1)
         frames.append(tf.convert_to_tensor(frame))
     cap.release()
