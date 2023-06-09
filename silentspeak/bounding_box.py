@@ -77,9 +77,8 @@ def bounding_box(path:str):
 
     y_px_min = round(y_px_min + Hb/2)
     y_px_max = round(y_px_max - Hb/2)
-
     return x_px_min, y_px_min, x_px_max, y_px_max
 
 
 
-bounding_box('/home/clement/code/ssaulay/silentspeak/drafts/data/sample_data/videos/035_L01.avi')
+print(bounding_box('/home/clement/code/ssaulay/silentspeak/drafts/data/sample_data/videos/001_L14.avi'))
