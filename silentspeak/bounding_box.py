@@ -1,8 +1,5 @@
 import cv2
 import mediapipe as mp
-import numpy as np
-import pandas as pd
-from os import walk
 import math
 
 def bounding_box(path:str):
@@ -44,8 +41,6 @@ def bounding_box(path:str):
                         drawSpec
                         )
 
-
-
             if results.multi_face_landmarks:
                 landmarks = results.multi_face_landmarks[0]
 
@@ -78,7 +73,3 @@ def bounding_box(path:str):
     y_px_min = round(y_px_min + Hb/2)
     y_px_max = round(y_px_max - Hb/2)
     return x_px_min, y_px_min, x_px_max, y_px_max
-
-
-
-print(bounding_box('/home/clement/code/ssaulay/silentspeak/drafts/data/sample_data/videos/001_L14.avi'))
