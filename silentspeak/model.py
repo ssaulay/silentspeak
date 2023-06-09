@@ -12,12 +12,14 @@ else:
 vocab_size = len(vocab)
 
 
-def load_model():
+def load_model(
+    input_shape = (75, 75, 150, 1)
+):
 
     model = Sequential()
 
     # >>>> Check input shape in line below
-    model.add(Conv3D(64, 3, input_shape=(250,75,150,1), padding='same'))
+    model.add(Conv3D(64, 3, input_shape=input_shape, padding='same'))
     model.add(Activation('relu'))
     model.add(MaxPool3D((1,2,2)))
 

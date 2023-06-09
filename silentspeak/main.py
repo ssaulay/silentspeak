@@ -48,6 +48,7 @@ def train(
     train = data.take(train_size)
     test = data.skip(train_size)
 
+
     model = load_model()
     # >>>> Reprendre ici
 
