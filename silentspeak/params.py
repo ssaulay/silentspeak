@@ -28,7 +28,7 @@ instance_data_path = os.environ.get("INSTANCE_DATA_PATH")
 
 # -------- VOCAB --------
 
-vocab_type = "p" # "p" for phonemes / "l" for letters
+vocab_type = "l" # "p" for phonemes / "l" for letters
 
 vocab_phonemes = [
     "a", "deux", "i", "O", "E", "S", "Z", "N", "o", "u",
