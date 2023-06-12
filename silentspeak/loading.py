@@ -55,6 +55,18 @@ def get_transcript(path: str) -> List[str]:
     return char_to_num(transcript)
 
 
+def load_alignments(path:str) -> List[str]:
+    """Load the English transcripts"""
+    with open(path, 'r') as f:
+        lines = f.readlines()
+    tokens = []
+    for line in lines:
+        line = line.split()
+        if line[2] != 'sil':
+            tokens = [*tokens,' ',line[2]]
+    return char_to_num(tf.reshape(tf.strings.unicode_split(tokens, input_encoding='UTF-8'), (-1)))[1:]
+
+
 def load_data(video_path: str):
     """Load the frames and the phonems for a single video
     (i.e. a single sentence pronounced by a single locutor)
@@ -87,16 +99,7 @@ def load_data(video_path: str):
 
 
 
-def load_alignments(path:str) -> List[str]:
-    """Load the English transcripts"""
-    with open(path, 'r') as f:
-        lines = f.readlines()
-    tokens = []
-    for line in lines:
-        line = line.split()
-        if line[2] != 'sil':
-            tokens = [*tokens,' ',line[2]]
-    return char_to_num(tf.reshape(tf.strings.unicode_split(tokens, input_encoding='UTF-8'), (-1)))[1:]
+
 
 
 if __name__ == '__main__':
