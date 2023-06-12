@@ -1,4 +1,5 @@
 import os
+import time
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
@@ -91,6 +92,25 @@ def load_and_compile_model():
     model.compile(
         optimizer=Adam(learning_rate=0.0001),
         loss=CTCLoss
+        )
+
+    return model
+
+
+def save_model(model):
+    """Save model as a h5 file"""
+
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    model_filename = f"model_{timestr}.h5"
+    model.save(os.path.join(models_path, model_filename))
+
+
+def load_model(name: str):
+    """Load model"""
+
+    model = tf.keras.models.load_model(
+        os.path.join(models_path, model_filename),
+        custom_objects = {"CTCLoss" : CTCLoss}
         )
 
     return model
