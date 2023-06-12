@@ -10,7 +10,7 @@ frame_w = 80 # --> 80
 # -------- MODE --------
 
 data_source = "google" # "local" or "gcp" or "google"
-data_size = "data" # "data" or "sample_data"
+data_size = "data" # "data", "sample_data", "data_EN" or "sample_data_EN"
 
 # -------- LOCAL DATA PATH --------
 
