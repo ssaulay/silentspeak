@@ -1,4 +1,5 @@
 import os
+import time
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
@@ -7,7 +8,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
 from silentspeak.params import vocab_type, vocab_phonemes, vocab_letters, n_frames, frame_h, frame_w, data_source, local_data_path, instance_data_path, test_local_video
-from silentspeak.loading import char_to_num, num_to_char, load_data
+from silentspeak.loading import char_to_num, num_to_char, load_data, load_video
 
 
 if data_source == "local":
@@ -96,6 +97,30 @@ def load_and_compile_model():
     return model
 
 
+def save_model(model):
+    """Save model as a h5 file"""
+
+    print("###### SAVING MODEL ######")
+
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    model_filename = f"model_{timestr}.h5"
+    model.save(os.path.join(models_path, model_filename))
+
+
+def load_model(model_filename: str):
+    """Load model"""
+
+    print("###### LOADING MODEL ######")
+    print(f"load: {model_filename}")
+
+    model = tf.keras.models.load_model(
+        os.path.join(models_path, model_filename),
+        custom_objects = {"CTCLoss" : CTCLoss}
+        )
+
+    return model
+
+
 def predict_test(
     model = None,
     path: str = test_local_video):
@@ -119,3 +144,35 @@ def predict_test(
 
     print('~'*100, 'PREDICTIONS')
     [tf.strings.reduce_join([num_to_char(word) for word in sentence]) for sentence in decoded]
+
+
+def predict(
+    model = None,
+    path: str = test_local_video):
+
+    if model is None:
+        saved_models = [file for file in os.listdir(models_path) if file[-3:] == ".h5"]
+        default_saved_model = saved_models[0]
+        print("###### LOAD DEFAULT SAVED MODEL ######")
+        print(f"load: {default_saved_model}")
+        model = load_model(default_saved_model)
+
+    loaded_video = load_video(test_local_video)
+    paddings = tf.constant([[n_frames - loaded_video.shape[0], 0], [0, 0], [0, 0], [0, 0]])
+    loaded_video_padded = tf.pad(loaded_video, paddings)
+    loaded_video_padded = tf.expand_dims(loaded_video_padded, axis=0)
+    yhat = model.predict(loaded_video_padded)
+
+    decoded = tf.keras.backend.ctc_decode(
+        tf.expand_dims(yhat[0], axis = 0),
+        input_length=[n_frames],
+        greedy=True)
+
+    decoded_string = tf.strings.reduce_join(
+        [num_to_char(tf.argmax(x)) for x in yhat[0]],
+        separator = "."
+        )
+
+    print("###### DECODED STRING ######")
+    print(decoded_string)
+    return yhat
