@@ -3,14 +3,14 @@ import os
 
 # -------- MODEL PARAMS --------
 
-n_frames = 115
+n_frames = 170
 frame_h = 54 # --> 54
 frame_w = 80 # --> 80
 
 # -------- MODE --------
+data_source = "google" # "local" or "gcp" or "google"
 
-data_source = "local" # "local" or "gcp"
-data_size = "sample_data" # "data" or "sample_data"
+data_size = "data" # "data" or "sample_data"
 
 # -------- LOCAL DATA PATH --------
 
@@ -24,7 +24,7 @@ gcp_region = os.environ.get("GCP_REGION")
 bucket_name = os.environ.get("BUCKET_NAME")
 #instance = os.environ.get("INSTANCE") # uncomment when vm is defined
 instance_data_path = os.environ.get("INSTANCE_DATA_PATH")
-
+google_data_path = os.environ.get("GOOGLE_DATA_PATH")
 
 # -------- VOCAB --------
 
