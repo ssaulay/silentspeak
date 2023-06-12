@@ -7,7 +7,7 @@ from tensorflow.keras.layers import Conv3D, LSTM, Dense, Dropout, Bidirectional,
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
-from silentspeak.params import vocab_type, vocab_phonemes, vocab_letters, n_frames, frame_h, frame_w, data_source, local_data_path, instance_data_path, test_local_video
+from silentspeak.params import vocab_type, vocab, n_frames, frame_h, frame_w, data_source, local_data_path, instance_data_path, test_local_video
 from silentspeak.loading import char_to_num, num_to_char, load_data, load_video
 
 
@@ -18,13 +18,6 @@ else:
     pass
 
 models_path = os.path.join(data_path, "..", "models")
-
-
-if vocab_type == "p":
-    vocab = vocab_phonemes
-else:
-    vocab = vocab_letters
-vocab_size = len(vocab)
 
 
 def scheduler(epoch, lr):
@@ -168,10 +161,15 @@ def predict(
         input_length=[n_frames],
         greedy=True)
 
-    decoded_string = tf.strings.reduce_join(
-        [num_to_char(tf.argmax(x)) for x in yhat[0]],
-        separator = "."
-        )
+    if vocab_type == "p" :
+        decoded_string = tf.strings.reduce_join(
+            [num_to_char(tf.argmax(x)) for x in yhat[0]],
+            separator = "."
+            )
+    else:
+         decoded_string = tf.strings.reduce_join(
+            [num_to_char(tf.argmax(x)) for x in yhat[0]]
+            )
 
     print("###### DECODED STRING ######")
     print(decoded_string)
