@@ -3,15 +3,16 @@ import tensorflow as tf
 import numpy as np
 
 from silentspeak.loading import *
-from silentspeak.params import local_data_path, instance_data_path, data_size, data_source, n_frames
+from silentspeak.params import local_data_path, instance_data_path, google_data_path, data_size, data_source, n_frames
 from silentspeak.model import load_and_compile_model, checkpoint_callback, schedule_callback, predict_test, save_model, load_model, predict
 
 
 if data_source == "local":
     data_path = local_data_path
-else:
+elif data_source == "gcp":
     data_path = instance_data_path
-    pass
+else:
+    data_path = google_data_path
 
 
 def mappable_function(path:str) ->List[str]:

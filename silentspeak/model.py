@@ -7,15 +7,16 @@ from tensorflow.keras.layers import Conv3D, LSTM, Dense, Dropout, Bidirectional,
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
-from silentspeak.params import vocab_type, vocab, n_frames, frame_h, frame_w, data_source, local_data_path, instance_data_path, test_local_video
+from silentspeak.params import vocab_type, vocab, n_frames, frame_h, frame_w, data_source, local_data_path, instance_data_path, google_data_path, test_local_video
 from silentspeak.loading import char_to_num, num_to_char, load_data, load_video
 
 
 if data_source == "local":
     data_path = local_data_path
-else:
+elif data_source == "gcp":
     data_path = instance_data_path
-    pass
+else:
+    data_path = google_data_path
 
 models_path = os.path.join(data_path, "..", "models")
 
