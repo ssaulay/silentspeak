@@ -3,13 +3,8 @@ import tensorflow as tf
 from typing import List
 import os
 import numpy as np
-from silentspeak.params import vocab_type, vocab_phonemes, vocab_letters, frame_h, frame_w, accents_dict
+from silentspeak.params import vocab_type, vocab, frame_h, frame_w, accents_dict
 from silentspeak.bounding_box import bounding_box
-
-if vocab_type == "p":
-    vocab = vocab_phonemes
-else:
-    vocab = vocab_letters
 
 
 char_to_num = tf.keras.layers.StringLookup(vocabulary=vocab, oov_token="")

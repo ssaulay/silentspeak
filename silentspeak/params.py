@@ -65,3 +65,8 @@ accents_dict = {
     "ù" : "u",
     "û" : "u"
 }
+
+if vocab_type == "p":
+    vocab = vocab_phonemes
+else:
+    vocab = vocab_letters
