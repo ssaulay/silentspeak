@@ -3,7 +3,7 @@ import tensorflow as tf
 from typing import List
 import os
 import numpy as np
-from silentspeak.params import vocab_type, vocab_phonemes, vocab_letters, frame_h, frame_w
+from silentspeak.params import vocab_type, vocab_phonemes, vocab_letters, frame_h, frame_w, accents_dict
 from silentspeak.bounding_box import bounding_box
 
 if vocab_type == "p":
@@ -45,6 +45,17 @@ def get_transcript(path: str) -> List[str]:
     transcript = [line[1] for line in lines if len(line) > 1]
     transcript = [char.replace("</s>", "") for char in transcript]
     transcript = [char for char in transcript if len(char) > 0]
+
+    # Remove accents if vocab_type is letters
+
+    if vocab_type == "l":
+        new_transcript = []
+        for char in transcript:
+            if char in accents_dict.keys():
+                new_transcript.append(accents_dict[char])
+            else:
+                new_transcript.append(char)
+        transcript = new_transcript
 
     return char_to_num(transcript)
 
