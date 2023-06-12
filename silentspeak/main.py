@@ -70,7 +70,8 @@ def train(
 if __name__ == '__main__':
     # download_data
     # preprocess
-    model = train(epochs = 2)
+    model = load_and_compile_model()
+    #model = train(epochs = 2)
     #save_model(model)
     #model = load_model("model_50.h5")
     yhat = predict(model)

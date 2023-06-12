@@ -28,7 +28,7 @@ instance_data_path = os.environ.get("INSTANCE_DATA_PATH")
 
 # -------- VOCAB --------
 
-vocab_type = "p" # "p" for phonemes / "l" for letters
+vocab_type = "l" # "p" for phonemes / "l" for letters
 
 vocab_phonemes = [
     "a", "deux", "i", "O", "E", "S", "Z", "N", "o", "u",
@@ -36,9 +36,37 @@ vocab_phonemes = [
     "b", "d", "g", "f", "s", "v", "z", "m", "n", "l", "R", "j", "H"
     ]
 
+# VOCAB LETTERS WITH ACCENTS
+# vocab_letters = [
+#     "'", "-", "2", "_",
+#     "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+#     "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+#     "à", "â", "ç", "è", "é", "ê", "ë", "î", "ï", "ô", "ù", "û"
+#     ]
+
+# VOCAB LETTERS WITHOUT ACCENTS
 vocab_letters = [
     "'", "-", "2", "_",
     "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
-    "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-    "à", "â", "ç", "è", "é", "ê", "ë", "î", "ï", "ô", "ù", "û"
+    "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
     ]
+
+accents_dict = {
+    "à" : "a",
+    "â" : "a",
+    "ç" : "c",
+    "è" : "e",
+    "é" : "e",
+    "ê" : "e",
+    "ë" : "e",
+    "î" : "i",
+    "ï" : "i",
+    "ô" : "o",
+    "ù" : "u",
+    "û" : "u"
+}
+
+if vocab_type == "p":
+    vocab = vocab_phonemes
+else:
+    vocab = vocab_letters
