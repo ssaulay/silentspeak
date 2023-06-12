@@ -26,6 +26,15 @@ bucket_name = os.environ.get("BUCKET_NAME")
 instance_data_path = os.environ.get("INSTANCE_DATA_PATH")
 google_data_path = os.environ.get("GOOGLE_DATA_PATH")
 
+# -------- DATA PATH --------
+
+if data_source == "local":
+    data_path = local_data_path
+elif data_source == "gcp":
+    data_path = instance_data_path
+else:
+    data_path = google_data_path
+
 # -------- VOCAB --------
 
 vocab_type = "l" # "p" for phonemes / "l" for letters
