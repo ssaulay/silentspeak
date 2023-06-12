@@ -112,4 +112,5 @@ if __name__ == '__main__':
     # print(num_to_char(get_transcript(test_path_fr)))
 
     test_video_en = "/Users/ArthurPech/code/ssaulay/silentspeak/raw_data/sample_data_EN/videos/bbaf2n.mpg"
-    print(load_video(test_video_en))
+    #print(load_video(test_video_en))
+    print(load_data(test_video_en))
