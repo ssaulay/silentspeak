@@ -3,14 +3,14 @@ import os
 
 # -------- MODEL PARAMS --------
 
-n_frames = 170
+n_frames = 160
 frame_h = 54 # --> 54
 frame_w = 80 # --> 80
 
 # -------- MODE --------
 
 data_source = "google" # "local" or "gcp" or "google"
-data_size = "data" # "data" or "sample_data"
+data_size = "data" # "data", "sample_data", "data_EN" or "sample_data_EN"
 
 # -------- LOCAL DATA PATH --------
 

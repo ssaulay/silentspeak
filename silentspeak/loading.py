@@ -3,7 +3,7 @@ import tensorflow as tf
 from typing import List
 import os
 import numpy as np
-from silentspeak.params import vocab_type, vocab, frame_h, frame_w, accents_dict
+from silentspeak.params import data_size, vocab_type, vocab, frame_h, frame_w, accents_dict
 from silentspeak.bounding_box import bounding_box
 
 
@@ -69,9 +69,44 @@ def load_data(video_path: str):
         video_path = bytes.decode(video_path.numpy())
         frames = load_video(video_path)
 
-    id_code = video_path[-11:][:7]
+    # CASE IF VIDEOS ARE IN FRENCH
+    if data_size in ["data", "sample_data"]:
 
-    transcript_path = os.path.join(video_path[:-11], "..", "transcripts", f"{vocab_type}_{id_code}.txt")
-    transcript = get_transcript(transcript_path)
+        id_code = video_path[-11:][:7]
+        transcript_path = os.path.join(video_path[:-11], "..", "transcripts", f"{vocab_type}_{id_code}.txt")
+        transcript = get_transcript(transcript_path)
+
+    # CASE IF VIDEOS ARE IN ENGLISH
+    else:
+
+        id_code = video_path[-10:][:6]
+        transcript_path = os.path.join(video_path[:-10], "..", "transcripts", f"{id_code}.align")
+        transcript = load_alignments(transcript_path)
 
     return frames, transcript
+
+
+
+def load_alignments(path:str) -> List[str]:
+    """Load the English transcripts"""
+    with open(path, 'r') as f:
+        lines = f.readlines()
+    tokens = []
+    for line in lines:
+        line = line.split()
+        if line[2] != 'sil':
+            tokens = [*tokens,' ',line[2]]
+    return char_to_num(tf.reshape(tf.strings.unicode_split(tokens, input_encoding='UTF-8'), (-1)))[1:]
+
+
+if __name__ == '__main__':
+    # test_path_en = "/Users/ArthurPech/code/ssaulay/silentspeak/raw_data/sample_data_EN/transcripts/bbaf2n.align"
+    # print(load_alignments(test_path_en))
+    # print(num_to_char(load_alignments(test_path_en)))
+
+    # test_path_fr = "/Users/ArthurPech/code/ssaulay/silentspeak/raw_data/sample_data/transcripts/l_234_L01.txt"
+    # print(get_transcript(test_path_fr))
+    # print(num_to_char(get_transcript(test_path_fr)))
+
+    test_video_en = "/Users/ArthurPech/code/ssaulay/silentspeak/raw_data/sample_data_EN/videos/bbaf2n.mpg"
+    print(load_video(test_video_en))

@@ -29,8 +29,14 @@ def train(
     """
 
     # Load data
+
+    if data_size in ["data", "sample_data"]: # VIDEOS IN FRENCH
+        video_format = "avi"
+    else:
+        video_format = "mpg"
+
     data = tf.data.Dataset.list_files(
-        os.path.join(data_path, data_size, "videos", "*.avi")
+        os.path.join(data_path, data_size, "videos", f"*.{video_format}")
         )
     data = data.map(mappable_function)
     data = data.padded_batch(
@@ -61,15 +67,15 @@ def train(
 
 
 if __name__ == '__main__':
-    print(data_path)
+    #print(data_path)
     # download_data
     # preprocess
-    #model = load_and_compile_model()
-    #model = train(epochs = 2)
+    model = load_and_compile_model()
+    model = train(epochs = 2)
     #save_model(model)
     #model = load_model("model_50.h5")
-    #yhat = predict(model)
-    #print(yhat)
+    yhat = predict(model)
+    print(yhat)
 
     # predict_test(model = model)
     # evaluate
