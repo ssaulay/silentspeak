@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 
 from silentspeak.loading import *
-from silentspeak.params import data_path, data_size, data_source, n_frames
+from silentspeak.params import data_path, data_size, n_frames
 from silentspeak.model import load_and_compile_model, checkpoint_callback, schedule_callback, predict_test, save_model, load_model, predict
 
 
@@ -61,14 +61,15 @@ def train(
 
 
 if __name__ == '__main__':
+    print(data_path)
     # download_data
     # preprocess
-    model = load_and_compile_model()
+    #model = load_and_compile_model()
     #model = train(epochs = 2)
     #save_model(model)
     #model = load_model("model_50.h5")
-    yhat = predict(model)
-    print(yhat)
+    #yhat = predict(model)
+    #print(yhat)
 
     # predict_test(model = model)
     # evaluate

@@ -7,7 +7,7 @@ from tensorflow.keras.layers import Conv3D, LSTM, Dense, Dropout, Bidirectional,
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
-from silentspeak.params import vocab_type, vocab, n_frames, frame_h, frame_w, data_source, data_path, test_local_video
+from silentspeak.params import vocab_type, vocab, n_frames, frame_h, frame_w, data_path, test_local_video
 from silentspeak.loading import char_to_num, num_to_char, load_data, load_video
 
 

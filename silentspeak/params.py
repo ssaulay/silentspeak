@@ -8,8 +8,8 @@ frame_h = 54 # --> 54
 frame_w = 80 # --> 80
 
 # -------- MODE --------
-data_source = "google" # "local" or "gcp" or "google"
 
+data_source = "google" # "local" or "gcp" or "google"
 data_size = "data" # "data" or "sample_data"
 
 # -------- LOCAL DATA PATH --------
@@ -28,12 +28,13 @@ google_data_path = os.environ.get("GOOGLE_DATA_PATH")
 
 # -------- DATA PATH --------
 
-if data_source == "local":
-    data_path = local_data_path
-elif data_source == "gcp":
-    data_path = instance_data_path
-else:
-    data_path = google_data_path
+data_path_dict = {
+    "local" : local_data_path,
+    "gcp" : instance_data_path,
+    "google" : google_data_path
+}
+
+data_path = data_path_dict[data_source]
 
 # -------- VOCAB --------
 
