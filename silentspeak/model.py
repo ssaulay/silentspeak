@@ -7,7 +7,7 @@ from tensorflow.keras.layers import Conv3D, LSTM, Dense, Dropout, Bidirectional,
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
-from silentspeak.params import vocab_type, vocab, n_frames, frame_h, frame_w, data_path, test_local_video
+from silentspeak.params import vocab_type, vocab, n_frames, n_frames_min, frame_h, frame_w, data_path, data_size, test_local_video
 from silentspeak.loading import char_to_num, num_to_char, load_data, load_video
 
 
@@ -42,7 +42,8 @@ checkpoint_callback = ModelCheckpoint(
 schedule_callback = LearningRateScheduler(scheduler)
 
 
-def load_and_compile_model():
+def instantiate_model():
+    """Instantiate a new model"""
 
     print("###### Defining model ######")
 
@@ -74,6 +75,12 @@ def load_and_compile_model():
 
     print(model.summary())
 
+    return model
+
+
+def compile_model(model):
+    """Compile an already instantiated model"""
+
     print("###### Compiling model ######")
 
     model.compile(
@@ -84,18 +91,26 @@ def load_and_compile_model():
     return model
 
 
+def load_and_compile_model():
+    """Instantiate a new model and compile it."""
+
+    model = instantiate_model()
+    model = compile_model(model)
+    return model
+
+
 def save_model(model):
     """Save model as a h5 file"""
 
     print("###### SAVING MODEL ######")
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    model_filename = f"model_{timestr}.h5"
+    model_filename = f"model_{data_size}_{n_frames_min}_{n_frames}_{timestr}.h5"
     model.save(os.path.join(models_path, model_filename))
 
 
 def load_model(model_filename: str):
-    """Load model"""
+    """Load model from h5 file"""
 
     print("###### LOADING MODEL ######")
     print(f"load: {model_filename}")
@@ -104,6 +119,15 @@ def load_model(model_filename: str):
         os.path.join(models_path, model_filename),
         custom_objects = {"CTCLoss" : CTCLoss}
         )
+
+    return model
+
+
+def load_model_weigths(model, checkpoint: str = os.path.join(models_path, "checkpoint")):
+    """Load weights into an already instantiated model"""
+
+    print(" ####### LOAD WEIGHTS #######")
+    model.load_weights(checkpoint)
 
     return model
 

@@ -1,10 +1,17 @@
 import os
 import tensorflow as tf
 import numpy as np
+import pandas as pd # NEW LINE
 
 from silentspeak.loading import *
-from silentspeak.params import data_path, data_size, n_frames
+from silentspeak.params import data_path, data_size, n_frames, n_frames_min
 from silentspeak.model import load_and_compile_model, checkpoint_callback, schedule_callback, predict_test, save_model, load_model, predict
+
+
+# Load csv file with number of frames per video
+# (videos in English and in French in the same df)
+csv_file = os.path.join(data_path, "n_frames.csv")
+df = pd.read_csv(csv_file)
 
 
 def mappable_function(path:str) ->List[str]:
@@ -30,14 +37,25 @@ def train(
 
     # Load data
 
-    if data_size in ["data", "sample_data"]: # VIDEOS IN FRENCH
-        video_format = "avi"
+    if data_size in ["data", "sample_data"]:
+        video_format = "avi" # Videos in French
     else:
-        video_format = "mpg"
+        video_format = "mpg" # Videos in English
+
+    # OLD WAY --> LOAD ALL VIDEOS IN A FOLDER
+    # data = tf.data.Dataset.list_files(
+    #     os.path.join(data_path, data_size, "videos", f"*.{video_format}")
+    #     )
+
+    # NEW WAY --> ONLY LOAD VIDEOS WITH LESS THAN N_FRAMES FRAMES
+    all_videos = os.listdir(os.path.join(data_path, data_size, "videos"))
+    all_videos = [vid for vid in all_videos if vid[-4:] == f".{video_format}"]
+    filtered_videos = [vid for vid in all_videos if (df[df["video"] == vid].iloc[0]["n_frames"] >= n_frames_min) & (df[df["video"] == vid].iloc[0]["n_frames"] <= n_frames)]
 
     data = tf.data.Dataset.list_files(
-        os.path.join(data_path, data_size, "videos", f"*.{video_format}")
+        [os.path.join(data_path, data_size, "videos", video) for video in filtered_videos]
         )
+
     data = data.map(mappable_function)
     data = data.padded_batch(
         batch_size,
@@ -72,7 +90,7 @@ if __name__ == '__main__':
     # preprocess
     model = load_and_compile_model()
     model = train(epochs = 2)
-    #save_model(model)
+    save_model(model)
     #model = load_model("model_50.h5")
     yhat = predict(model)
     print(yhat)
