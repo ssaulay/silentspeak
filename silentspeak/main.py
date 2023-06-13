@@ -24,6 +24,7 @@ def mappable_function(path:str) ->List[str]:
 
 
 def train_model_all(
+    model_num = 1,
     epochs = 10,
     batch_size = 2,
     padded_frames_shape = [n_frames,None,None,None],
@@ -63,16 +64,9 @@ def train_model_all(
         padded_shapes = (padded_frames_shape, padded_transcripts_shape))
     data = data.prefetch(tf.data.AUTOTUNE)
 
-    #frames, alignments = data.as_numpy_iterator().next()
-    #sample = data.as_numpy_iterator()
-
-    # Added for split
-    # train = data.take(train_size)
-    # test = data.skip(train_size)
-
     print("###### Load and compile model ######")
 
-    model = load_and_compile_model()
+    model = load_and_compile_model(model_num)
 
     print("###### Train model ######")
 
@@ -151,26 +145,28 @@ if __name__ == '__main__':
     #print(data_path)
     # download_data
     # preprocess
-    # model = load_and_compile_model()
+    # model = load_and_compile_model(model_num = 1)
     # model = train_model_all(epochs = 2)
 
     batch_size = 2
     data, train, test = data_train_test(batch_size = batch_size)
     example_callback = ProduceExample(test, batch_size = batch_size)
+    callbacks = [checkpoint_callback, schedule_callback, example_callback]
+    # callbacks = [checkpoint_callback, schedule_callback]
 
     model = train_model(
         train,
         test,
         model_num = 1,
         epochs = 2,
-        callbacks = [checkpoint_callback, schedule_callback, example_callback]
+        callbacks = callbacks
     )
 
     # save_model(model)
 
-    #model = load_model("model_20230613-102804.h5")
-    yhat = predict(model)
-    print(yhat)
+    # model = load_model("model_20230613-102804.h5")
+    # yhat = predict(model)
+    # print(yhat)
 
     # predict_test(model = model)
     # evaluate

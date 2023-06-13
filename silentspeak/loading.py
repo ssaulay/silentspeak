@@ -46,36 +46,36 @@ def process_video(path: str):
 
 
 
-# def load_video(path:str) -> List[float]:
-#     """
-#     Load the tensor representation of a video cropped to mouth-size.
-#     >> If the file exists as a .npy file --> load this file into a tensor
-#     >> If the file does not exists as a .npy file --> process the video to a tensor
-#     """
+def load_video(path:str) -> List[float]:
+    """
+    Load the tensor representation of a video cropped to mouth-size.
+    >> If the file exists as a .npy file --> load this file into a tensor
+    >> If the file does not exists as a .npy file --> process the video to a tensor
+    """
 
-#     # CASE IF VIDEOS ARE IN FRENCH
-#     if data_size in ["data", "sample_data"]:
-#         id_code = path[-11:][:7]
-#         npy_path = os.path.join(path[:-11], "..", "videos-npy")
+    # CASE IF VIDEOS ARE IN FRENCH
+    if data_size in ["data", "sample_data"]:
+        id_code = path[-11:][:7]
+        npy_path = os.path.join(path[:-11], "..", "videos-npy")
 
-#     # CASE IF VIDEOS ARE IN ENGLISH
-#     else:
-#         id_code = path[-10:][:6]
-#         npy_path = os.path.join(path[:-10], "..", "videos-npy")
+    # CASE IF VIDEOS ARE IN ENGLISH
+    else:
+        id_code = path[-10:][:6]
+        npy_path = os.path.join(path[:-10], "..", "videos-npy")
 
-#     # if npy file exists --> load this file
-#     npy_file = os.path.join(npy_path, f"{id_code}.npy")
-#     if os.path.isfile(npy_file):
-#         frames = load_video_npy(npy_file)
+    # if npy file exists --> load this file
+    npy_file = os.path.join(npy_path, f"{id_code}.npy")
+    if os.path.isfile(npy_file):
+        frames = load_video_npy(npy_file)
 
-#     # if npy file does not exist --> process the video
-#     else:
-#         frames = process_video(path)
+    # if npy file does not exist --> process the video
+    else:
+        frames = process_video(path)
 
-#     return frames
+    return frames
 
 
-load_video = process_video
+# load_video = process_video
 
 
 def get_transcript(path: str) -> List[str]:
