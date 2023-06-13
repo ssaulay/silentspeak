@@ -3,16 +3,16 @@ import os
 
 # -------- MODEL PARAMS --------
 
-n_frames = 101 # must be at least 2x the size of transcripts sequence length
-n_frames_min = 80
+n_frames = 80 # must be at least 2x the size of transcripts sequence length
+n_frames_min = 0
 frame_h = 54 # --> 54
 frame_w = 80 # --> 80
-transcript_padding = 50 # 50 for French phonemes, 72 for french letters, 21 for English
+transcript_padding = 28 # 50 for French phonemes, 72 for french letters, 21 for English
 
 # -------- MODE --------
 
 data_source = "local" # "local" or "gcp" or "google"
-data_size = "sample_data" # "data", "sample_data", "data_EN" or "sample_data_EN"
+data_size = "sample_data_EN" # "data", "sample_data", "data_EN" or "sample_data_EN"
 
 # -------- LOCAL DATA PATH --------
 
@@ -40,7 +40,7 @@ data_path = data_path_dict[data_source]
 
 # -------- VOCAB --------
 
-vocab_type = "p" # "p" for phonemes / "l" for letters
+vocab_type = "l" # "p" for phonemes / "l" for letters
 
 vocab_phonemes = [
     "a", "deux", "i", "O", "E", "S", "Z", "N", "o", "u",
