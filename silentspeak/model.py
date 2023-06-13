@@ -42,7 +42,8 @@ checkpoint_callback = ModelCheckpoint(
 schedule_callback = LearningRateScheduler(scheduler)
 
 
-def load_and_compile_model():
+def instantiate_model():
+    """Instantiate a new model"""
 
     print("###### Defining model ######")
 
@@ -74,6 +75,12 @@ def load_and_compile_model():
 
     print(model.summary())
 
+    return model
+
+
+def compile_model(model):
+    """Compile an already instantiated model"""
+
     print("###### Compiling model ######")
 
     model.compile(
@@ -81,6 +88,14 @@ def load_and_compile_model():
         loss=CTCLoss
         )
 
+    return model
+
+
+def load_and_compile_model():
+    """Instantiate a new model and compile it."""
+
+    model = instantiate_model()
+    model = compile_model(model)
     return model
 
 
