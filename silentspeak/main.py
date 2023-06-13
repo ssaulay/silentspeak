@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd # NEW LINE
 
 from silentspeak.loading import *
-from silentspeak.params import data_path, data_size, n_frames
+from silentspeak.params import data_path, data_size, n_frames, n_frames_min
 from silentspeak.model import load_and_compile_model, checkpoint_callback, schedule_callback, predict_test, save_model, load_model, predict
 
 
@@ -50,7 +50,7 @@ def train(
     # NEW WAY --> ONLY LOAD VIDEOS WITH LESS THAN N_FRAMES FRAMES
     all_videos = os.listdir(os.path.join(data_path, data_size, "videos"))
     all_videos = [vid for vid in all_videos if vid[-4:] == f".{video_format}"]
-    filtered_videos = [vid for vid in all_videos if df[df["video"] == vid].iloc[0]["n_frames"] <= n_frames]
+    filtered_videos = [vid for vid in all_videos if (df[df["video"] == vid].iloc[0]["n_frames"] >= n_frames_min) & (df[df["video"] == vid].iloc[0]["n_frames"] <= n_frames)]
 
     data = tf.data.Dataset.list_files(
         [os.path.join(data_path, data_size, "videos", video) for video in filtered_videos]

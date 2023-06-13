@@ -3,7 +3,8 @@ import os
 
 # -------- MODEL PARAMS --------
 
-n_frames = 101 # must be at least 2x the size of
+n_frames = 101 # must be at least 2x the size of transcripts sequence length
+n_frames_min = 80
 frame_h = 54 # --> 54
 frame_w = 80 # --> 80
 
