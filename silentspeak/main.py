@@ -157,6 +157,7 @@ if __name__ == '__main__':
     batch_size = 2
     data, train, test = data_train_test(batch_size = batch_size)
     example_callback = ProduceExample(test, batch_size = batch_size)
+
     model = train_model(
         train,
         test,

@@ -12,7 +12,20 @@ num_to_char = tf.keras.layers.StringLookup(
     vocabulary=char_to_num.get_vocabulary(), oov_token="", invert=True
 )
 
-def load_video(path:str) -> List[float]:
+
+def load_video_npy(path: str):
+    """
+    Load a .npy file representing of a video cropped to mouth-size and convert it into a tensor.
+    """
+
+    video_np = np.load(path)
+    video_tensor = tf.constant(video_np)
+    return video_tensor
+
+
+def process_video(path: str):
+    """Process the video into a tensor representing the video cropped to mouth-size"""
+
     y_px_min, y_px_max, x_px_min, x_px_max = bounding_box(path=path)
     cap = cv2.VideoCapture(path)
     frames = []
@@ -29,6 +42,40 @@ def load_video(path:str) -> List[float]:
     frames = tf.cast((frames - mean), tf.float32) / std
 
     return frames
+
+
+
+
+# def load_video(path:str) -> List[float]:
+#     """
+#     Load the tensor representation of a video cropped to mouth-size.
+#     >> If the file exists as a .npy file --> load this file into a tensor
+#     >> If the file does not exists as a .npy file --> process the video to a tensor
+#     """
+
+#     # CASE IF VIDEOS ARE IN FRENCH
+#     if data_size in ["data", "sample_data"]:
+#         id_code = path[-11:][:7]
+#         npy_path = os.path.join(path[:-11], "..", "videos-npy")
+
+#     # CASE IF VIDEOS ARE IN ENGLISH
+#     else:
+#         id_code = path[-10:][:6]
+#         npy_path = os.path.join(path[:-10], "..", "videos-npy")
+
+#     # if npy file exists --> load this file
+#     npy_file = os.path.join(npy_path, f"{id_code}.npy")
+#     if os.path.isfile(npy_file):
+#         frames = load_video_npy(npy_file)
+
+#     # if npy file does not exist --> process the video
+#     else:
+#         frames = process_video(path)
+
+#     return frames
+
+
+load_video = process_video
 
 
 def get_transcript(path: str) -> List[str]:
