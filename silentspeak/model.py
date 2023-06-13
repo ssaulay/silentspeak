@@ -7,7 +7,7 @@ from tensorflow.keras.layers import Conv3D, LSTM, Dense, Dropout, Bidirectional,
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
-from silentspeak.params import vocab_type, vocab, n_frames, n_frames_min, frame_h, frame_w, data_path, data_size, test_local_video
+from silentspeak.params import vocab_type, vocab, n_frames, n_frames_min, frame_h, frame_w, transcript_padding, data_path, data_size, test_local_video
 from silentspeak.loading import char_to_num, num_to_char, load_data, load_video
 
 
@@ -105,7 +105,7 @@ def save_model(model):
     print("###### SAVING MODEL ######")
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    model_filename = f"model_{data_size}_{n_frames_min}_{n_frames}_{timestr}.h5"
+    model_filename = f"model_{data_size}_{n_frames_min}_{n_frames}_{transcript_padding}_{timestr}.h5"
     model.save(os.path.join(models_path, model_filename))
 
 
@@ -159,7 +159,9 @@ def predict_test(
 
 def predict(
     model = None,
-    path: str = test_local_video):
+    path: str = test_local_video,
+    vocab_type = vocab_type
+    ):
 
     if model is None:
         saved_models = [file for file in os.listdir(models_path) if file[-3:] == ".h5"]
@@ -168,16 +170,20 @@ def predict(
         print(f"load: {default_saved_model}")
         model = load_model(default_saved_model)
 
-    loaded_video = load_video(test_local_video)
+    loaded_video = load_video(path)
     paddings = tf.constant([[n_frames - loaded_video.shape[0], 0], [0, 0], [0, 0], [0, 0]])
     loaded_video_padded = tf.pad(loaded_video, paddings)
     loaded_video_padded = tf.expand_dims(loaded_video_padded, axis=0)
+
+    print("###### PREDICT ######")
     yhat = model.predict(loaded_video_padded)
 
     decoded = tf.keras.backend.ctc_decode(
         tf.expand_dims(yhat[0], axis = 0),
         input_length=[n_frames],
         greedy=True)
+
+    #print(decoded.numpy())
 
     if vocab_type == "p" :
         decoded_string = tf.strings.reduce_join(
@@ -192,3 +198,15 @@ def predict(
     print("###### DECODED STRING ######")
     print(decoded_string)
     return yhat
+
+
+
+def predict_and_decode(
+    model = None,
+    path: str = test_local_video,
+    min_frames = 0,
+    max_frames = n_frames,
+    vocab_type = vocab_type):
+
+    """Predict and decode the prediction of a model"""
+    pass

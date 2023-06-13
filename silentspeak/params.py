@@ -7,6 +7,7 @@ n_frames = 101 # must be at least 2x the size of transcripts sequence length
 n_frames_min = 80
 frame_h = 54 # --> 54
 frame_w = 80 # --> 80
+transcript_padding = 50 # 50 for French phonemes, 72 for french letters, 21 for English
 
 # -------- MODE --------
 
@@ -57,7 +58,7 @@ vocab_phonemes = [
 
 # VOCAB LETTERS WITHOUT ACCENTS
 vocab_letters = [
-    "'", "-", "2", "_",
+    " ", "'", "-", "2", "_",
     "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
     "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
     ]
