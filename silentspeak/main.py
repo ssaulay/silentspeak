@@ -158,7 +158,7 @@ if __name__ == '__main__':
     model = train_model(
         train,
         test,
-        model_num = 2,
+        model_num = 1,
         epochs = 2
     )
 
