@@ -39,7 +39,33 @@ checkpoint_callback = ModelCheckpoint(
     save_weights_only = True
     )
 
+
 schedule_callback = LearningRateScheduler(scheduler)
+
+
+class ProduceExample(tf.keras.callbacks.Callback):
+    def __init__(self, dataset, batch_size) -> None:
+        self.original_dataset = dataset
+        self.dataset = dataset.as_numpy_iterator()
+        self.batch_size = batch_size
+
+    def on_epoch_end(self, epoch, logs=None) -> None:
+        try:
+          data = self.dataset.next()
+        except StopIteration:
+          self.dataset = self.original_dataset.as_numpy_iterator()
+          data = self.dataset.next()
+        yhat = self.model.predict(data[0])
+        decoded = tf.keras.backend.ctc_decode(yhat, [n_frames] * self.batch_size, greedy=False)[0][0].numpy()
+        for x in range(len(yhat)):
+            print('Original:', tf.strings.reduce_join(num_to_char(data[1][x])).numpy().decode('utf-8'))
+            print('Prediction:', tf.strings.reduce_join(num_to_char(decoded[x])).numpy().decode('utf-8'))
+            print('~'*100)
+
+        # tf.keras.backend.ctc_decode(
+        # tf.expand_dims(yhat[0], axis = 0),
+        # input_length=[n_frames],
+        # greedy=True)
 
 
 def model_1():

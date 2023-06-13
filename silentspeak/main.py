@@ -5,7 +5,7 @@ import pandas as pd # NEW LINE
 
 from silentspeak.loading import *
 from silentspeak.params import data_path, data_size, n_frames, n_frames_min, transcript_padding
-from silentspeak.model import load_and_compile_model, checkpoint_callback, schedule_callback, predict_test, save_model, load_model, predict
+from silentspeak.model import load_and_compile_model, checkpoint_callback, schedule_callback, predict_test, save_model, load_model, predict, ProduceExample
 
 
 # Load csv file with number of frames per video
@@ -154,12 +154,15 @@ if __name__ == '__main__':
     # model = load_and_compile_model()
     # model = train_model_all(epochs = 2)
 
-    data, train, test = data_train_test()
+    batch_size = 2
+    data, train, test = data_train_test(batch_size = batch_size)
+    example_callback = ProduceExample(test, batch_size = batch_size)
     model = train_model(
         train,
         test,
         model_num = 1,
-        epochs = 2
+        epochs = 2,
+        callbacks = [checkpoint_callback, schedule_callback, example_callback]
     )
 
     # save_model(model)
