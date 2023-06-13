@@ -1,3 +1,10 @@
+import tensorflow as tf
+
+from silentspeak.params import n_frames
+from silentspeak.loading import num_to_char
+
+
+
 def levenshtein(a, b):
   """Calculates the Levenshtein distance between a and b.
   The code was taken from: http://hetland.org/coding/python/levenshtein.py
@@ -22,7 +29,7 @@ def levenshtein(a, b):
 def decode_y(y, batch_size, pred = True):
   decoded = y
   if pred:
-    decoded = tf.keras.backend.ctc_decode(y, [MAX_LEN]*batch_size, greedy=False)[0][0].numpy()
+    decoded = tf.keras.backend.ctc_decode(y, [n_frames]*batch_size, greedy=False)[0][0].numpy()
   tf_bytes = [tf.strings.reduce_join([num_to_char(word) for word in sentence]) for sentence in decoded]
   result = [t.numpy().decode() for t in tf_bytes]
   return result
