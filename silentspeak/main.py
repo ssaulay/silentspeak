@@ -90,7 +90,7 @@ if __name__ == '__main__':
     # preprocess
     model = load_and_compile_model()
     model = train(epochs = 2)
-    #save_model(model)
+    save_model(model)
     #model = load_model("model_50.h5")
     yhat = predict(model)
     print(yhat)
