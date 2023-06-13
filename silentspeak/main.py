@@ -62,7 +62,7 @@ def train(
         padded_shapes = (padded_frames_shape, padded_transcripts_shape))
     data = data.prefetch(tf.data.AUTOTUNE)
 
-    frames, alignments = data.as_numpy_iterator().next()
+    #frames, alignments = data.as_numpy_iterator().next()
     #sample = data.as_numpy_iterator()
 
     # Added for split
