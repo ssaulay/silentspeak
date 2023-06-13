@@ -124,6 +124,7 @@ def data_train_test(
 def train_model(
     train,
     test,
+    model_num = 1,
     epochs = 10,
     callbacks = [checkpoint_callback, schedule_callback]
     ):
@@ -132,7 +133,7 @@ def train_model(
 
     print("###### Load and compile model ######")
 
-    model = load_and_compile_model()
+    model = load_and_compile_model(model_num)
 
     print("###### Train model ######")
 
@@ -157,6 +158,7 @@ if __name__ == '__main__':
     model = train_model(
         train,
         test,
+        model_num = 2,
         epochs = 2
     )
 

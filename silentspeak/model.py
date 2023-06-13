@@ -42,10 +42,10 @@ checkpoint_callback = ModelCheckpoint(
 schedule_callback = LearningRateScheduler(scheduler)
 
 
-def instantiate_model():
+def model_1():
     """Instantiate a new model"""
 
-    print("###### Defining model ######")
+    print("###### Defining model - Type 1 ######")
 
     model = Sequential()
 
@@ -78,6 +78,60 @@ def instantiate_model():
     return model
 
 
+def model_2():
+    """Instantiate a new model"""
+
+    print("###### Defining model - Type 2 ######")
+
+    model = Sequential()
+
+    model.add(Conv3D(64, kernel_size=5, strides=(1,2,2), input_shape=(n_frames, frame_h, frame_w, 1), padding="same"))
+    model.add(Activation('relu'))
+
+    model.add(Conv3D(128, kernel_size=(1,3,3), strides = (1,2,2), padding="same"))
+    model.add(Activation('relu'))
+
+    model.add(Conv3D(256, kernel_size=(1,3,3), strides = (1,2,2), padding="same"))
+    model.add(Activation('relu'))
+
+    model.add(Conv3D(256, kernel_size=(1,3,3), padding="same"))
+    model.add(Activation('relu'))
+
+    model.add(Conv3D(256, kernel_size=(1,3,3), padding="same"))
+    model.add(Activation('relu'))
+
+    model.add(Conv3D(512, kernel_size=(1,3,3), strides=(1,2,2), padding="same"))
+    model.add(Activation('relu'))
+
+
+    model.add(Conv3D(512, kernel_size=(1,3,3), padding="same"))
+    model.add(Activation('relu'))
+
+
+    model.add(Conv3D(512, kernel_size=(1,3,3), strides = (1,2,2), padding="same"))
+    model.add(Activation('relu'))
+
+    model.add(TimeDistributed(Flatten()))
+
+    model.add(Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)))
+    # model.add(Dropout(.5))
+
+    model.add(Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)))
+    # model.add(Dropout(.5))
+
+    model.add(Dense(char_to_num.vocabulary_size()+1, kernel_initializer='he_normal', activation='softmax'))
+
+    return model
+
+
+def instantiate_model(model_num = 1):
+    if model_num == 1:
+        model = model_1()
+    elif model_num == 2:
+        model = model_2()
+    return model
+
+
 def compile_model(model):
     """Compile an already instantiated model"""
 
@@ -91,10 +145,10 @@ def compile_model(model):
     return model
 
 
-def load_and_compile_model():
+def load_and_compile_model(model_num = 1):
     """Instantiate a new model and compile it."""
 
-    model = instantiate_model()
+    model = instantiate_model(model_num)
     model = compile_model(model)
     return model
 
