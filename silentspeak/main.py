@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd # NEW LINE
 
 from silentspeak.loading import *
-from silentspeak.params import data_path, data_size, n_frames, n_frames_min
+from silentspeak.params import data_path, data_size, n_frames, n_frames_min, transcript_padding
 from silentspeak.model import load_and_compile_model, checkpoint_callback, schedule_callback, predict_test, save_model, load_model, predict
 
 
@@ -27,7 +27,7 @@ def train(
     epochs = 10,
     batch_size = 2,
     padded_frames_shape = [n_frames,None,None,None],
-    padded_transcripts_shape = [50],
+    padded_transcripts_shape = [transcript_padding],
     train_size = 10,
     callbacks = [checkpoint_callback, schedule_callback]
 ):
@@ -90,8 +90,9 @@ if __name__ == '__main__':
     # preprocess
     model = load_and_compile_model()
     model = train(epochs = 2)
-    save_model(model)
-    #model = load_model("model_50.h5")
+    # save_model(model)
+
+    #model = load_model("model_20230613-102804.h5")
     yhat = predict(model)
     print(yhat)
 
