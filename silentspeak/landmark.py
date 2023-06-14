@@ -210,6 +210,7 @@ def create_landmarks_npy(path_csv_non_normalize, path_npy_non_normalize, path_np
 
 
 def create_landmarks_mp4():
+
     cap = cv2.VideoCapture(0)
     NUM_FACE = 2
     mp_face_mesh = mp.solutions.face_mesh

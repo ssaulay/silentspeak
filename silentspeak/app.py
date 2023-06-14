@@ -6,15 +6,14 @@ from params import data_path
 from moviepy.editor import VideoFileClip
 
 # API endpoint URL
-API_URL = "http://localhost:8000"
+API_URL = "http://localhost:8080"
 
 # Paths
-print(data_path)
-folder_path = os.path.join(data_path, '..', 'silentspeak', 'tempDir')
-chat_path = os.path.join(data_path, '..', 'silentspeak', 'interface', 'img', 'wired-gradient-203-chat-message.gif')
-arrow_path = os.path.join(data_path, '..', 'silentspeak', 'interface', 'img', 'wired-gradient-33-arrow-down.gif')
-logo_path = os.path.join(data_path, '..', 'silentspeak', 'interface', 'img', 'logo.png')
-face_path = os.path.join(data_path, '..', 'silentspeak', 'interface', 'img', 'wired-gradient-1376-face-id.gif')
+folder_path = os.path.join('silentspeak', 'tempDir')
+chat_path = os.path.join('silentspeak', 'interface', 'img', 'wired-gradient-203-chat-message.gif')
+arrow_path = os.path.join('silentspeak', 'interface', 'img', 'wired-gradient-33-arrow-down.gif')
+logo_path = os.path.join('silentspeak', 'interface', 'img', 'logo.png')
+face_path = os.path.join('silentspeak', 'interface', 'img', 'wired-gradient-1376-face-id.gif')
 
 # Set page title and favicon
 st.set_page_config(page_title="Silent Speak App", page_icon=":lips:")
@@ -125,8 +124,10 @@ if st.button("Predict") and video_file is not None:
         f'<img src="data:image/gif;base64,{data_url}" alt="conv gif" class="custom-gif2">',
         unsafe_allow_html=True)
 
+    url = f'{API_URL}/predict'
+    files = {'file':video_file.getbuffer()}
 
-    response = requests.get(f"{API_URL}/predict?path={path_avi}")
+    response = requests.post(url=url, files=files)
 
     if response.status_code == 200:
         result = response.json()

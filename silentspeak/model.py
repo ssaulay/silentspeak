@@ -1,5 +1,6 @@
 import os
 import time
+from google.cloud import storage
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
@@ -7,11 +8,9 @@ from tensorflow.keras.layers import Conv3D, LSTM, Dense, Dropout, Bidirectional,
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
-from silentspeak.params import vocab_type, vocab, n_frames, frame_h, frame_w, data_path, test_local_video
+from silentspeak.params import models_path, bucket_name, model_target, vocab_type, vocab, n_frames, frame_h, frame_w, data_path, test_local_video
 from silentspeak.loading import char_to_num, num_to_char, load_data, load_video
 
-
-models_path = os.path.join(data_path, "..", "models")
 
 
 def scheduler(epoch, lr):
@@ -95,17 +94,35 @@ def save_model(model):
 
 
 def load_model(model_filename: str):
+    if model_target == "local":
+        print("###### LOADING MODEL ######")
+        print(f"load: {model_filename}")
+
+        model = tf.keras.models.load_model(
+            os.path.join(models_path, model_filename),
+            custom_objects = {"CTCLoss" : CTCLoss}
+            )
+
+        return model
+
+    if model_target == "gcs":
+
+        client = storage.Client()
+        blobs = list(client.get_bucket(bucket_name).list_blobs(prefix="model"))
+
+        latest_blob = max(blobs, key=lambda x: x.updated)
+        latest_model_path_to_save = os.path.join(latest_blob.name)
+        latest_blob.download_to_filename(latest_model_path_to_save)
+
+        latest_model = tf.keras.models.load_model(latest_model_path_to_save, custom_objects={'CTCLoss':CTCLoss}, compile=False)
+
+        print("✅ Latest model downloaded from cloud storage")
+        print(latest_blob.name)
+
+        return latest_model
+
     """Load model"""
 
-    print("###### LOADING MODEL ######")
-    print(f"load: {model_filename}")
-
-    model = tf.keras.models.load_model(
-        os.path.join(models_path, model_filename),
-        custom_objects = {"CTCLoss" : CTCLoss}
-        )
-
-    return model
 
 
 def predict_test(
@@ -135,16 +152,9 @@ def predict_test(
 
 def predict(
     model = None,
-    path: str = test_local_video):
+    path = test_local_video):
 
-    if model is None:
-        saved_models = [file for file in os.listdir(models_path) if file[-3:] == ".h5"]
-        default_saved_model = saved_models[0]
-        print("###### LOAD DEFAULT SAVED MODEL ######")
-        print(f"load: {default_saved_model}")
-        model = load_model(default_saved_model)
-
-    loaded_video = load_video(test_local_video)
+    loaded_video = load_video(path)
     paddings = tf.constant([[n_frames - loaded_video.shape[0], 0], [0, 0], [0, 0], [0, 0]])
     loaded_video_padded = tf.pad(loaded_video, paddings)
     loaded_video_padded = tf.expand_dims(loaded_video_padded, axis=0)
@@ -161,10 +171,9 @@ def predict(
             separator = "."
             )
     else:
-         decoded_string = tf.strings.reduce_join(
-            [num_to_char(tf.argmax(x)) for x in yhat[0]]
-            )
+        decoded_string = [tf.strings.reduce_join([num_to_char(word) for word in sentence]) for sentence in decoded]
+        decoded_string = decoded_string[0].numpy().decode()
 
     print("###### DECODED STRING ######")
     print(decoded_string)
-    return yhat
+    return decoded_string
