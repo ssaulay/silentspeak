@@ -19,7 +19,8 @@ def load_video_npy(path: str):
     """
 
     video_np = np.load(path)
-    video_tensor = tf.constant(video_np)
+    # video_tensor = tf.constant(video_np)
+    video_tensor = tf.cast(video_np, tf.float32)
     return video_tensor
 
 
