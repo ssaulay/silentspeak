@@ -22,3 +22,8 @@ scikit-learn
 # Landmark --
 # opencv-python
 # mediapipe
+
+# API + Streamlit
+=======
+# fastapi
+# base64

@@ -1,13 +1,14 @@
 import os
 
-
 # -------- MODEL PARAMS --------
+
 
 n_frames = 80 # must be at least 2x the size of transcripts sequence length
 n_frames_min = 0
 frame_h = 54 # --> 54
 frame_w = 80 # --> 80
 transcript_padding = 28 # 50 for French phonemes, 72 for french letters, 21 for English
+
 
 # -------- MODE --------
 
