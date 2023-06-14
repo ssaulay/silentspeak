@@ -1,16 +1,17 @@
 import os
 
-
 # -------- MODEL PARAMS --------
 
-n_frames = 75 # --> 115
+n_frames = 75 # must be at least 2x the size of transcripts sequence length
+n_frames_min = 0
 frame_h = 54 # --> 54
 frame_w = 80 # --> 80
+transcript_padding = 40 # 50 for French phonemes, 72 for french letters, 21 for English
 
 # -------- MODE --------
 
 data_source = "local" # "local" or "gcp" or "google"
-data_size = "data" # "data", "sample_data", "data_EN" or "sample_data_EN"
+data_size = "data_EN" # "data", "sample_data", "data_EN" or "sample_data_EN"
 
 # -------- LOCAL DATA PATH --------
 
@@ -56,7 +57,7 @@ vocab_phonemes = [
 
 # VOCAB LETTERS WITHOUT ACCENTS
 vocab_letters = [
-    "'", "-", "2", "_",
+    " ", "'", "-", "2", "_",
     "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
     "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
     ]
