@@ -6,7 +6,7 @@ from params import data_path
 from moviepy.editor import VideoFileClip
 
 # API endpoint URL
-API_URL = "http://localhost:8080"
+API_URL = "http://0.0.0.0:8080"
 # API_URL = "http://localhost:8000"
 
 
@@ -96,16 +96,16 @@ def save_uploadedfile(uploadedfile):
     return os.path.join(folder_path, uploadedfile.name)
 
 
-# if video_file is not None:
-#     path_mpg = save_uploadedfile(video_file)
+if video_file is not None:
+    path_mpg = save_uploadedfile(video_file)
 
-#     clip = VideoFileClip(path_mpg)
-#     clip = clip.write_videofile(path_mpg[:-4]+'.mp4')
+    clip = VideoFileClip(path_mpg)
+    clip = clip.write_videofile(path_mpg[:-4]+'.mp4')
 
-#     path_mp4 = os.path.join(path_mpg[:-4]+'.mp4')
+    path_mp4 = os.path.join(path_mpg[:-4]+'.mp4')
 
-#     # Display the video
-video_clip = st.video(video_file)
+    # Display the video
+    video_clip = st.video(video_file)
 
 file_ = open(arrow_path, "rb")
 contents = file_.read()
