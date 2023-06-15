@@ -6,7 +6,7 @@ from params import data_path
 from moviepy.editor import VideoFileClip
 
 # API endpoint URL
-API_URL = "http://localhost:8080"
+API_URL = "http://0.0.0.0:8080"
 # API_URL = "http://localhost:8000"
 
 
@@ -105,7 +105,8 @@ def save_uploadedfile(uploadedfile):
 #     path_mp4 = os.path.join(path_mpg[:-4]+'.mp4')
 
 #     # Display the video
-video_clip = st.video(video_file)
+# video_clip =
+st.video(video_file)
 
 file_ = open(arrow_path, "rb")
 contents = file_.read()
@@ -134,8 +135,8 @@ if st.button("Predict") and video_file is not None:
     if response.status_code == 200:
         result = response.json()
         scan.success(f"Prediction: {result['prediction']}")
-        os.remove(path_mpg)
-        os.remove(path_mp4)
+        # os.remove(path_mpg)
+        # os.remove(path_mp4)
 
     else:
         st.error("Error occurred during prediction")
