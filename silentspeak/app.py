@@ -66,14 +66,8 @@ st.markdown(
 logo_image = logo_path
 st.image(logo_image)
 
-# Set separator
-st.markdown("<h3 class='title'>•</h3>", unsafe_allow_html=True)
-
 # Set app title
 st.markdown("<h1 class='title'>Hear with your eyes through Silent Speak</h1>", unsafe_allow_html=True)
-
-# Set separator
-st.markdown("<h3 class='title'>•</h3>", unsafe_allow_html=True)
 
 # Add a gif
 file_ = open(chat_path, "rb")
@@ -104,9 +98,9 @@ def save_uploadedfile(uploadedfile):
 
 #     path_mp4 = os.path.join(path_mpg[:-4]+'.mp4')
 
-#     # Display the video
-# video_clip =
-st.video(video_file)
+    # Display the video
+if video_file is not None:
+    st.video(video_file, format='.mpg')
 
 file_ = open(arrow_path, "rb")
 contents = file_.read()
