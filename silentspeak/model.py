@@ -1,5 +1,6 @@
 import os
 import time
+from google.cloud import storage
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
@@ -7,11 +8,10 @@ from tensorflow.keras.layers import Conv3D, LSTM, Dense, Dropout, Bidirectional,
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
-from silentspeak.params import vocab_type, vocab, n_frames, n_frames_min, frame_h, frame_w, transcript_padding, data_path, data_size, test_local_video
+
+from silentspeak.params import data_size, models_path, bucket_name, model_target, vocab_type, vocab, n_frames, n_frames_min, frame_h, frame_w, data_path, test_local_video, transcript_padding
 from silentspeak.loading import char_to_num, num_to_char, load_data, load_video
 
-
-models_path = os.path.join(data_path, "..", "models")
 
 
 def scheduler(epoch, lr):
@@ -110,17 +110,37 @@ def save_model(model):
 
 
 def load_model(model_filename: str):
+    if model_target == "local":
+        print("###### LOADING MODEL ######")
+        print(f"load: {model_filename}")
+        
     """Load model from h5 file"""
 
-    print("###### LOADING MODEL ######")
-    print(f"load: {model_filename}")
+        model = tf.keras.models.load_model(
+            os.path.join(models_path, model_filename),
+            custom_objects = {"CTCLoss" : CTCLoss}
+            )
 
-    model = tf.keras.models.load_model(
-        os.path.join(models_path, model_filename),
-        custom_objects = {"CTCLoss" : CTCLoss}
-        )
+        return model
 
-    return model
+    if model_target == "gcs":
+
+        client = storage.Client()
+        blobs = list(client.get_bucket(bucket_name).list_blobs(prefix="model"))
+
+        latest_blob = max(blobs, key=lambda x: x.updated)
+        latest_model_path_to_save = os.path.join(latest_blob.name)
+        latest_blob.download_to_filename(latest_model_path_to_save)
+
+        latest_model = tf.keras.models.load_model(latest_model_path_to_save, custom_objects={'CTCLoss':CTCLoss}, compile=False)
+
+        print("✅ Latest model downloaded from cloud storage")
+        print(latest_blob.name)
+
+        return latest_model
+
+    """Load model"""
+
 
 
 def load_model_weigths(model, checkpoint: str = os.path.join(models_path, "checkpoint")):
@@ -159,9 +179,7 @@ def predict_test(
 
 def predict(
     model = None,
-    path: str = test_local_video,
-    vocab_type = vocab_type
-    ):
+    path = test_local_video):
 
     if model is None:
         saved_models = [file for file in os.listdir(models_path) if file[-3:] == ".h5"]
@@ -181,7 +199,8 @@ def predict(
     decoded = tf.keras.backend.ctc_decode(
         tf.expand_dims(yhat[0], axis = 0),
         input_length=[n_frames],
-        greedy=True)
+        greedy=True)[0][0].numpy()
+
 
     #print(decoded.numpy())
 
@@ -191,13 +210,12 @@ def predict(
             separator = "."
             )
     else:
-         decoded_string = tf.strings.reduce_join(
-            [num_to_char(tf.argmax(x)) for x in yhat[0]]
-            )
+        decoded_string = [tf.strings.reduce_join([num_to_char(word) for word in sentence]) for sentence in decoded]
+        decoded_string = decoded_string[0].numpy().decode()
 
     print("###### DECODED STRING ######")
     print(decoded_string)
-    return yhat
+    return decoded_string
 
 
 

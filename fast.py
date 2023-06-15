@@ -1,21 +1,14 @@
 from silentspeak.model import predict, load_model, load_and_compile_model
 from silentspeak.loading import num_to_char
 import tensorflow as tf
+import time
 
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-model = load_model('model_130623EN.h5')
+model = load_model('model_140623ENLOSS2.h5')
 
 # model = load_and_compile_model()
 
@@ -23,17 +16,16 @@ model = load_model('model_130623EN.h5')
 def root():
     return {'greeting': 'Hello'}
 
-@app.get("/predict")
-def make_prediction(path
-                    ):
+@app.post("/predict")
+async def make_prediction(file:UploadFile):
+    content = await file.read()
+    timestamp = str(time.time()).replace(".", "")
 
-    prediction = predict(model=model, path=path)
+    with open(f"{timestamp}.mpg", "wb") as binary_file:
+        binary_file.write(content)
 
-    decoded_string = tf.strings.reduce_join(
-                [num_to_char(tf.argmax(x)) for x in prediction[0]]
-                )
+    prediction = predict(model=model, path=f'{timestamp}.mpg')
 
-    result = bytes.decode(decoded_string.numpy())
-    # result = 'Une quebécoise pleurnicheuse brandie euclide lors des réunions'
+    result = prediction
 
     return {'prediction': result}
