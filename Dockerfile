@@ -15,6 +15,6 @@ RUN mkdir model
 
 COPY fast.py .
 
-COPY .keys .keys
+# COPY .keys .keys
 
 CMD uvicorn fast:app --host 0.0.0.0 --port $PORT
