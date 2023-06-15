@@ -3,9 +3,8 @@ import tensorflow as tf
 from typing import List
 import os
 import numpy as np
-from silentspeak.params import data_size, vocab_type, vocab, frame_h, frame_w, accents_dict
+from silentspeak.params import data_size, vocab_type, vocab, frame_h, frame_w, accents_dict, n_frames
 from silentspeak.bounding_box import bounding_box
-
 
 char_to_num = tf.keras.layers.StringLookup(vocabulary=vocab, oov_token="")
 num_to_char = tf.keras.layers.StringLookup(
@@ -146,19 +145,5 @@ def load_data(video_path: str):
     return frames, transcript
 
 
-
-
-
-
 if __name__ == '__main__':
-    # test_path_en = "/Users/ArthurPech/code/ssaulay/silentspeak/raw_data/sample_data_EN/transcripts/bbaf2n.align"
-    # print(load_alignments(test_path_en))
-    # print(num_to_char(load_alignments(test_path_en)))
-
-    # test_path_fr = "/Users/ArthurPech/code/ssaulay/silentspeak/raw_data/sample_data/transcripts/l_234_L01.txt"
-    # print(get_transcript(test_path_fr))
-    # print(num_to_char(get_transcript(test_path_fr)))
-
-    test_video_en = "/Users/ArthurPech/code/ssaulay/silentspeak/raw_data/sample_data_EN/videos/bbaf2n.mpg"
-    #print(load_video(test_video_en))
-    print(load_data(test_video_en))
+    pass

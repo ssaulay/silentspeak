@@ -5,7 +5,7 @@ import pandas as pd # NEW LINE
 
 from silentspeak.loading import *
 from silentspeak.params import data_path, data_size, n_frames, n_frames_min, transcript_padding
-from silentspeak.model import load_and_compile_model, checkpoint_callback, schedule_callback, predict_test, save_model, load_model, predict, ProduceExample
+from silentspeak.model import load_and_compile_model, checkpoint_callback, schedule_callback, instantiate_model, load_model_weigths, predict_video, models_path, predict_test, save_model, load_model, predict, ProduceExample
 
 
 # Load csv file with number of frames per video
@@ -142,33 +142,43 @@ def train_model(
 
 
 if __name__ == '__main__':
+
+    # TEST PREDICTION
+    model_name = "model_140623EN_AM1_6.h5"
+    model = load_model(model_name)
+
+    #model = instantiate_model(model_num = 1)
+    #checkpoint_demo_EN = "/Users/ArthurPech/code/ssaulay/silentspeak/models/model_demo_EN_2/checkpoint"
+    #model = load_model_weigths(model, checkpoint_demo_EN)
+
+    #video_name = "Welcome to SilentSpeak.MOV" # --> ERROR
+    #video_name = "lrae5a - lay_red_at_e_five_again.mpg" # --> OK
+    video_name = "other_lipnet - place_red_in_a_zero_now.mpg" # --> OK
+
+    video = os.path.join(data_path, "videos_demo", video_name)
+    prediction = predict_video(model, video)
+
+
     #print(data_path)
     # download_data
     # preprocess
     # model = load_and_compile_model(model_num = 1)
     # model = train_model_all(epochs = 2)
 
-    batch_size = 2
-    data, train, test = data_train_test(batch_size = batch_size)
-    example_callback = ProduceExample(test, batch_size = batch_size)
-    callbacks = [checkpoint_callback, schedule_callback, example_callback]
-    # callbacks = [checkpoint_callback, schedule_callback]
+    # batch_size = 2
+    # data, train, test = data_train_test(batch_size = batch_size)
+    # example_callback = ProduceExample(test, batch_size = batch_size)
+    # callbacks = [checkpoint_callback, schedule_callback, example_callback]
+    # # callbacks = [checkpoint_callback, schedule_callback]
 
-    model = train_model(
-        train,
-        test,
-        model_num = 1,
-        epochs = 2,
-        callbacks = callbacks
-    )
+    # model = train_model(
+    #     train,
+    #     test,
+    #     model_num = 1,
+    #     epochs = 2,
+    #     callbacks = callbacks
+    # )
 
     # save_model(model)
 
-    # model = load_model("model_20230613-102804.h5")
-    # yhat = predict(model)
-    # print(yhat)
-
-    # predict_test(model = model)
-    # evaluate
-    # pred
     pass

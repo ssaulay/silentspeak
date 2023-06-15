@@ -8,15 +8,10 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
 from silentspeak.params import vocab_type, vocab, n_frames, n_frames_min, frame_h, frame_w, transcript_padding, data_path, data_size, test_local_video
-from silentspeak.loading import char_to_num, num_to_char, load_data, load_video
+from silentspeak.loading import char_to_num, num_to_char, load_data, load_video, process_video
 
 
 models_path = os.path.join(data_path, "..", "models")
-
-# Params model_y
-MAX_LEN = 75
-MAX_WIDTH = 51
-MAX_HEIGHT = 70
 
 
 def scheduler(epoch, lr):
@@ -155,50 +150,6 @@ def model_2():
     return model
 
 
-def model_y():
-    """
-    Model 2 with different input shape (from different npy files)
-    """
-
-    model = Sequential()
-    model.add(Conv3D(64, kernel_size=5, strides=(1,2,2), input_shape=(MAX_LEN,MAX_WIDTH,MAX_HEIGHT,1), padding="same"))
-    model.add(Activation('relu'))
-
-    model.add(Conv3D(128, kernel_size=(1,3,3), strides = (1,2,2), padding="same"))
-    model.add(Activation('relu'))
-
-    model.add(Conv3D(256, kernel_size=(1,3,3), strides = (1,2,2), padding="same"))
-    model.add(Activation('relu'))
-
-    model.add(Conv3D(256, kernel_size=(1,3,3), padding="same"))
-    model.add(Activation('relu'))
-
-    model.add(Conv3D(256, kernel_size=(1,3,3), padding="same"))
-    model.add(Activation('relu'))
-
-    model.add(Conv3D(512, kernel_size=(1,3,3), strides=(1,2,2), padding="same"))
-    model.add(Activation('relu'))
-
-
-    model.add(Conv3D(512, kernel_size=(1,3,3), padding="same"))
-    model.add(Activation('relu'))
-
-
-    model.add(Conv3D(512, kernel_size=(1,3,3), strides = (1,2,2), padding="same"))
-    model.add(Activation('relu'))
-
-    model.add(TimeDistributed(Flatten()))
-
-    model.add(Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)))
-    # model.add(Dropout(.5))
-
-    model.add(Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)))
-    # model.add(Dropout(.5))
-
-    model.add(Dense(char_to_num.vocabulary_size()+1, kernel_initializer='he_normal', activation='softmax'))
-    return model
-
-
 def instantiate_model(model_num = 1):
     if model_num == 1:
         model = model_1()
@@ -330,12 +281,34 @@ def predict(
 
 
 
-def predict_and_decode(
-    model = None,
-    path: str = test_local_video,
-    min_frames = 0,
-    max_frames = n_frames,
-    vocab_type = vocab_type):
+def predict_video(model, video_path: str) -> str:
+    """
+    Takes a video as an input and returns a prediction in string
 
-    """Predict and decode the prediction of a model"""
-    pass
+    inputs:
+    >> model: the model that will returns the prediction from the video
+    >> video_path: the path to the video to predict
+
+    output:
+    >> the prediction expressed as a string
+    """
+
+    processed_video = process_video(video_path)
+
+    pad_after = n_frames - processed_video.shape[0]
+
+    paddings = tf.constant([[0, pad_after], [0, 0], [0, 0], [0, 0]])
+    video_padded = tf.pad(processed_video, paddings)
+    video_pred = tf.expand_dims(video_padded, axis=0)
+
+    yhat = model.predict(video_pred)
+
+    decoded = tf.keras.backend.ctc_decode(yhat, input_length=[n_frames], greedy=True)[0][0].numpy()
+
+    prediction = [tf.strings.reduce_join([num_to_char(word) for word in sentence]) for sentence in decoded][0].numpy().decode("UTF-8")
+
+    print("##### PREDICT #####")
+    print('~'*100)
+    print(f"Prediction: {prediction}")
+
+    return prediction

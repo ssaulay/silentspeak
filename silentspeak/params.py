@@ -3,7 +3,7 @@ import os
 
 # -------- MODEL PARAMS --------
 
-n_frames = 115 # must be at least 2x the size of transcripts sequence length
+n_frames = 80 # must be at least 2x the size of transcripts sequence length
 n_frames_min = 0
 frame_h = 54 # --> 54
 frame_w = 80 # --> 80
@@ -62,6 +62,13 @@ vocab_letters = [
     "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
     "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
     ]
+
+# VOCAB LETTERS FOR EN
+# vocab_letters = [
+#     '', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+#     'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+#     "'", '?', '!', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' '
+#     ]
 
 accents_dict = {
     "à" : "a",
