@@ -227,7 +227,7 @@ def create_landmarks_mp4():
 
 
             # Convert the BGR frame to RGB and process it
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2XYZ)
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
             # Process the frame using MediaPiSpe
             results = face_mesh.process(rgb_frame)
@@ -235,48 +235,48 @@ def create_landmarks_mp4():
             # Draw the face landmarks on the frame
             annotated_frame = frame.copy()
 
-            if results.multi_face_landmarks:
-                for faceLms in results.multi_face_landmarks:
-                    mp_drawing.draw_landmarks(
-                        annotated_frame,
-                        results.multi_face_landmarks[0],
-                        mp_face_mesh.FACEMESH_CONTOURS,
-                        drawSpec,
-                        drawSpec
-                        )
+            # if results.multi_face_landmarks:
+            #     for faceLms in results.multi_face_landmarks:
+            #         mp_drawing.draw_landmarks(
+            #             annotated_frame,
+            #             results.multi_face_landmarks[0],
+            #             mp_face_mesh.FACEMESH_CONTOURS,
+            #             drawSpec,
+            #             drawSpec
+            #             )
 
-            # Extract the mouth region
-            mouth_coordinates = {}
-            mouth_landmarks = []
-            mouth_ids = [
-            0, 267, 269, 270, 409, 291, 375, 321, 405, 314,
-            17, 84, 181, 91, 146, 61, 185, 40, 39, 37, 0,
-            13, 312, 311, 310, 415, 308, 324, 318, 402, 317,
-            14, 87, 178, 88, 95, 78, 191, 80, 81, 82, 13
-            ]
-            reference_id = 6
+            # # Extract the mouth region
+            # mouth_coordinates = {}
+            # mouth_landmarks = []
+            # mouth_ids = [
+            # 0, 267, 269, 270, 409, 291, 375, 321, 405, 314,
+            # 17, 84, 181, 91, 146, 61, 185, 40, 39, 37, 0,
+            # 13, 312, 311, 310, 415, 308, 324, 318, 402, 317,
+            # 14, 87, 178, 88, 95, 78, 191, 80, 81, 82, 13
+            # ]
+            # reference_id = 6
 
-            if results.multi_face_landmarks:
-                    landmarks = results.multi_face_landmarks[0]
-
-
-                    for id, landmark in enumerate(landmarks.landmark):
-
-                        # Extract only the mouth landmarks (IDs in mouth_ids)
-                        if id in mouth_ids:
-                            # Get the frame, id and coordinates of points of mouth
-                            pos_frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
-                            ih, iw, ip = frame.shape
-                            x, y, z= int(landmark.x * iw), int(landmark.y * ih), int(landmark.y * ip)
-                            mouth_landmarks.append((x, y))
-                            mouth_coordinates[id] = landmarks
-                            cv2.putText(frame, str(id), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 1)
+            # if results.multi_face_landmarks:
+            #         landmarks = results.multi_face_landmarks[0]
 
 
-            # Draw the mouth region
-            if mouth_landmarks:
-                hull = cv2.convexHull(np.array(mouth_landmarks))
-                cv2.drawContours(annotated_frame, [hull], -1, (0, 255, 0), 2)
+            #         for id, landmark in enumerate(landmarks.landmark):
+
+            #             # Extract only the mouth landmarks (IDs in mouth_ids)
+            #             if id in mouth_ids:
+            #                 # Get the frame, id and coordinates of points of mouth
+            #                 pos_frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
+            #                 ih, iw, ip = frame.shape
+            #                 x, y, z= int(landmark.x * iw), int(landmark.y * ih), int(landmark.y * ip)
+            #                 mouth_landmarks.append((x, y))
+            #                 mouth_coordinates[id] = landmarks
+            #                 cv2.putText(frame, str(id), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 1)
+
+
+            # # Draw the mouth region
+            # if mouth_landmarks:
+            #     hull = cv2.convexHull(np.array(mouth_landmarks))
+            #     cv2.drawContours(annotated_frame, [hull], -1, (0, 255, 0), 2)
 
             # Show the video
             cv2.imshow('Mouth Capture', annotated_frame)
