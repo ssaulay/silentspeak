@@ -1,6 +1,5 @@
 import os
 
-
 # -------- MODEL PARAMS --------
 
 n_frames = 80 # must be at least 2x the size of transcripts sequence length
@@ -9,10 +8,12 @@ frame_h = 54 # --> 54
 frame_w = 80 # --> 80
 transcript_padding = 40 # 50 for French phonemes, 72 for french letters, 21 for English
 
+
 # -------- MODE --------
 
 data_source = "local" # "local" or "gcp" or "google"
-data_size = "sample_data_EN" # "data", "sample_data", "data_EN" or "sample_data_EN"
+data_size = "data_EN" # "data", "sample_data", "data_EN" or "sample_data_EN"
+model_target = os.environ.get("MODEL_TARGET")
 
 # -------- LOCAL DATA PATH --------
 
@@ -37,6 +38,7 @@ data_path_dict = {
 }
 
 data_path = data_path_dict[data_source]
+models_path = os.environ.get('MODEL_PATH')
 
 # -------- VOCAB --------
 
