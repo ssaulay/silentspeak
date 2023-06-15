@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-model = load_model('model_140623EN22.h5')
+model = load_model('model_140623ENLOSS2.h5')
 
 # model = load_and_compile_model()
 
