@@ -8,7 +8,8 @@ from tensorflow.keras.layers import Conv3D, LSTM, Dense, Dropout, Bidirectional,
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
-from silentspeak.params import models_path, bucket_name, model_target, vocab_type, vocab, n_frames, frame_h, frame_w, data_path, test_local_video
+
+from silentspeak.params import data_size, models_path, bucket_name, model_target, vocab_type, vocab, n_frames, n_frames_min, frame_h, frame_w, data_path, test_local_video, transcript_padding
 from silentspeak.loading import char_to_num, num_to_char, load_data, load_video
 
 
@@ -41,7 +42,8 @@ checkpoint_callback = ModelCheckpoint(
 schedule_callback = LearningRateScheduler(scheduler)
 
 
-def load_and_compile_model():
+def instantiate_model():
+    """Instantiate a new model"""
 
     print("###### Defining model ######")
 
@@ -73,6 +75,12 @@ def load_and_compile_model():
 
     print(model.summary())
 
+    return model
+
+
+def compile_model(model):
+    """Compile an already instantiated model"""
+
     print("###### Compiling model ######")
 
     model.compile(
@@ -83,13 +91,21 @@ def load_and_compile_model():
     return model
 
 
+def load_and_compile_model():
+    """Instantiate a new model and compile it."""
+
+    model = instantiate_model()
+    model = compile_model(model)
+    return model
+
+
 def save_model(model):
     """Save model as a h5 file"""
 
     print("###### SAVING MODEL ######")
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    model_filename = f"model_{timestr}.h5"
+    model_filename = f"model_{data_size}_{n_frames_min}_{n_frames}_{transcript_padding}_{timestr}.h5"
     model.save(os.path.join(models_path, model_filename))
 
 
@@ -97,6 +113,8 @@ def load_model(model_filename: str):
     if model_target == "local":
         print("###### LOADING MODEL ######")
         print(f"load: {model_filename}")
+        
+    """Load model from h5 file"""
 
         model = tf.keras.models.load_model(
             os.path.join(models_path, model_filename),
@@ -123,6 +141,15 @@ def load_model(model_filename: str):
 
     """Load model"""
 
+
+
+def load_model_weigths(model, checkpoint: str = os.path.join(models_path, "checkpoint")):
+    """Load weights into an already instantiated model"""
+
+    print(" ####### LOAD WEIGHTS #######")
+    model.load_weights(checkpoint)
+
+    return model
 
 
 def predict_test(
@@ -154,10 +181,19 @@ def predict(
     model = None,
     path = test_local_video):
 
+    if model is None:
+        saved_models = [file for file in os.listdir(models_path) if file[-3:] == ".h5"]
+        default_saved_model = saved_models[0]
+        print("###### LOAD DEFAULT SAVED MODEL ######")
+        print(f"load: {default_saved_model}")
+        model = load_model(default_saved_model)
+
     loaded_video = load_video(path)
     paddings = tf.constant([[n_frames - loaded_video.shape[0], 0], [0, 0], [0, 0], [0, 0]])
     loaded_video_padded = tf.pad(loaded_video, paddings)
     loaded_video_padded = tf.expand_dims(loaded_video_padded, axis=0)
+
+    print("###### PREDICT ######")
     yhat = model.predict(loaded_video_padded)
 
     decoded = tf.keras.backend.ctc_decode(
@@ -165,6 +201,8 @@ def predict(
         input_length=[n_frames],
         greedy=True)[0][0].numpy()
 
+
+    #print(decoded.numpy())
 
     if vocab_type == "p" :
         decoded_string = tf.strings.reduce_join(
@@ -178,3 +216,15 @@ def predict(
     print("###### DECODED STRING ######")
     print(decoded_string)
     return decoded_string
+
+
+
+def predict_and_decode(
+    model = None,
+    path: str = test_local_video,
+    min_frames = 0,
+    max_frames = n_frames,
+    vocab_type = vocab_type):
+
+    """Predict and decode the prediction of a model"""
+    pass
