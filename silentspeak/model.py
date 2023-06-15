@@ -163,7 +163,8 @@ def predict(
     decoded = tf.keras.backend.ctc_decode(
         tf.expand_dims(yhat[0], axis = 0),
         input_length=[n_frames],
-        greedy=True)
+        greedy=True)[0][0].numpy()
+
 
     if vocab_type == "p" :
         decoded_string = tf.strings.reduce_join(

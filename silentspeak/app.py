@@ -6,7 +6,9 @@ from params import data_path
 from moviepy.editor import VideoFileClip
 
 # API endpoint URL
-API_URL = "http://localhost:8080"
+# API_URL = "http://localhost:8080"
+API_URL = "http://localhost:8000"
+
 
 # Paths
 folder_path = os.path.join('silentspeak', 'tempDir')
