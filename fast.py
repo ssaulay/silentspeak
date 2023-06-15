@@ -1,4 +1,4 @@
-from silentspeak.model import predict, load_model, load_and_compile_model
+from silentspeak.model import predict_video, load_model, load_and_compile_model
 from silentspeak.loading import num_to_char
 import tensorflow as tf
 import time
@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-model = load_model('model_140623ENLOSS2.h5')
+model = load_model('model_def_EN_1-6.h5')
 
 # model = load_and_compile_model()
 
@@ -24,8 +24,6 @@ async def make_prediction(file:UploadFile):
     with open(f"{timestamp}.mpg", "wb") as binary_file:
         binary_file.write(content)
 
-    prediction = predict(model=model, path=f'{timestamp}.mpg')
+    prediction = predict_video(model=model, video_path=f'{timestamp}.mpg')
 
-    result = prediction
-
-    return {'prediction': result}
+    return {'prediction': prediction}
