@@ -8,10 +8,8 @@ from tensorflow.keras.layers import Conv3D, LSTM, Dense, Dropout, Bidirectional,
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
-
-from silentspeak.params import data_size, models_path, bucket_name, model_target, vocab_type, vocab, n_frames, n_frames_min, frame_h, frame_w, data_path, test_local_video, transcript_padding
-from silentspeak.loading import char_to_num, num_to_char, load_data, load_video
-
+from silentspeak.params import vocab_type, vocab, n_frames, n_frames_min, frame_h, frame_w, transcript_padding, data_path, data_size, test_local_video, models_path, bucket_name, model_target
+from silentspeak.loading import char_to_num, num_to_char, load_data, load_video, process_video
 
 
 def scheduler(epoch, lr):
@@ -39,13 +37,39 @@ checkpoint_callback = ModelCheckpoint(
     save_weights_only = True
     )
 
+
 schedule_callback = LearningRateScheduler(scheduler)
 
 
-def instantiate_model():
+class ProduceExample(tf.keras.callbacks.Callback):
+    def __init__(self, dataset, batch_size) -> None:
+        self.original_dataset = dataset
+        self.dataset = dataset.as_numpy_iterator()
+        self.batch_size = batch_size
+
+    def on_epoch_end(self, epoch, logs=None) -> None:
+        try:
+          data = self.dataset.next()
+        except StopIteration:
+          self.dataset = self.original_dataset.as_numpy_iterator()
+          data = self.dataset.next()
+        yhat = self.model.predict(data[0])
+        decoded = tf.keras.backend.ctc_decode(yhat, [n_frames] * self.batch_size, greedy=False)[0][0].numpy()
+        for x in range(len(yhat)):
+            print('Original:', tf.strings.reduce_join(num_to_char(data[1][x])).numpy().decode('utf-8'))
+            print('Prediction:', tf.strings.reduce_join(num_to_char(decoded[x])).numpy().decode('utf-8'))
+            print('~'*100)
+
+        # tf.keras.backend.ctc_decode(
+        # tf.expand_dims(yhat[0], axis = 0),
+        # input_length=[n_frames],
+        # greedy=True)
+
+
+def model_1():
     """Instantiate a new model"""
 
-    print("###### Defining model ######")
+    print("###### Defining model - Type 1 ######")
 
     model = Sequential()
 
@@ -78,6 +102,60 @@ def instantiate_model():
     return model
 
 
+def model_2():
+    """Instantiate a new model"""
+
+    print("###### Defining model - Type 2 ######")
+
+    model = Sequential()
+
+    model.add(Conv3D(64, kernel_size=5, strides=(1,2,2), input_shape=(n_frames, frame_h, frame_w, 1), padding="same"))
+    model.add(Activation('relu'))
+
+    model.add(Conv3D(128, kernel_size=(1,3,3), strides = (1,2,2), padding="same"))
+    model.add(Activation('relu'))
+
+    model.add(Conv3D(256, kernel_size=(1,3,3), strides = (1,2,2), padding="same"))
+    model.add(Activation('relu'))
+
+    model.add(Conv3D(256, kernel_size=(1,3,3), padding="same"))
+    model.add(Activation('relu'))
+
+    model.add(Conv3D(256, kernel_size=(1,3,3), padding="same"))
+    model.add(Activation('relu'))
+
+    model.add(Conv3D(512, kernel_size=(1,3,3), strides=(1,2,2), padding="same"))
+    model.add(Activation('relu'))
+
+
+    model.add(Conv3D(512, kernel_size=(1,3,3), padding="same"))
+    model.add(Activation('relu'))
+
+
+    model.add(Conv3D(512, kernel_size=(1,3,3), strides = (1,2,2), padding="same"))
+    model.add(Activation('relu'))
+
+    model.add(TimeDistributed(Flatten()))
+
+    model.add(Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)))
+    # model.add(Dropout(.5))
+
+    model.add(Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)))
+    # model.add(Dropout(.5))
+
+    model.add(Dense(char_to_num.vocabulary_size()+1, kernel_initializer='he_normal', activation='softmax'))
+
+    return model
+
+
+def instantiate_model(model_num = 1):
+    if model_num == 1:
+        model = model_1()
+    elif model_num == 2:
+        model = model_2()
+    return model
+
+
 def compile_model(model):
     """Compile an already instantiated model"""
 
@@ -91,10 +169,10 @@ def compile_model(model):
     return model
 
 
-def load_and_compile_model():
+def load_and_compile_model(model_num = 1):
     """Instantiate a new model and compile it."""
 
-    model = instantiate_model()
+    model = instantiate_model(model_num)
     model = compile_model(model)
     return model
 
@@ -219,12 +297,34 @@ def predict(
 
 
 
-def predict_and_decode(
-    model = None,
-    path: str = test_local_video,
-    min_frames = 0,
-    max_frames = n_frames,
-    vocab_type = vocab_type):
+def predict_video(model, video_path: str) -> str:
+    """
+    Takes a video as an input and returns a prediction in string
 
-    """Predict and decode the prediction of a model"""
-    pass
+    inputs:
+    >> model: the model that will returns the prediction from the video
+    >> video_path: the path to the video to predict
+
+    output:
+    >> the prediction expressed as a string
+    """
+
+    processed_video = process_video(video_path)
+
+    pad_after = n_frames - processed_video.shape[0]
+
+    paddings = tf.constant([[0, pad_after], [0, 0], [0, 0], [0, 0]])
+    video_padded = tf.pad(processed_video, paddings)
+    video_pred = tf.expand_dims(video_padded, axis=0)
+
+    yhat = model.predict(video_pred)
+
+    decoded = tf.keras.backend.ctc_decode(yhat, input_length=[n_frames], greedy=True)[0][0].numpy()
+
+    prediction = [tf.strings.reduce_join([num_to_char(word) for word in sentence]) for sentence in decoded][0].numpy().decode("UTF-8")
+
+    print("##### PREDICT #####")
+    print('~'*100)
+    print(f"Prediction: {prediction}")
+
+    return prediction

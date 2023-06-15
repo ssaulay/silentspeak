@@ -6,7 +6,7 @@ n_frames = 80 # must be at least 2x the size of transcripts sequence length
 n_frames_min = 0
 frame_h = 54 # --> 54
 frame_w = 80 # --> 80
-transcript_padding = 28 # 50 for French phonemes, 72 for french letters, 21 for English
+transcript_padding = 40 # 50 for French phonemes, 72 for french letters, 21 for English
 
 
 # -------- MODE --------
@@ -64,6 +64,7 @@ vocab_letters = [
     "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
     "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
     ]
+
 
 accents_dict = {
     "à" : "a",

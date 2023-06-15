@@ -3,16 +3,29 @@ import tensorflow as tf
 from typing import List
 import os
 import numpy as np
-from silentspeak.params import data_size, vocab_type, vocab, frame_h, frame_w, accents_dict
+from silentspeak.params import data_size, vocab_type, vocab, frame_h, frame_w, accents_dict, n_frames
 from silentspeak.bounding_box import bounding_box
-
 
 char_to_num = tf.keras.layers.StringLookup(vocabulary=vocab, oov_token="")
 num_to_char = tf.keras.layers.StringLookup(
     vocabulary=char_to_num.get_vocabulary(), oov_token="", invert=True
 )
 
-def load_video(path:str) -> List[float]:
+
+def load_video_npy(path: str):
+    """
+    Load a .npy file representing of a video cropped to mouth-size and convert it into a tensor.
+    """
+
+    video_np = np.load(path)
+    # video_tensor = tf.constant(video_np)
+    video_tensor = tf.cast(video_np, tf.float32)
+    return video_tensor
+
+
+def process_video(path: str):
+    """Process the video into a tensor representing the video cropped to mouth-size"""
+
     y_px_min, y_px_max, x_px_min, x_px_max = bounding_box(path=path)
     cap = cv2.VideoCapture(path)
     frames = []
@@ -29,6 +42,40 @@ def load_video(path:str) -> List[float]:
     frames = tf.cast((frames - mean), tf.float32) / std
 
     return frames
+
+
+
+
+def load_video(path:str) -> List[float]:
+    """
+    Load the tensor representation of a video cropped to mouth-size.
+    >> If the file exists as a .npy file --> load this file into a tensor
+    >> If the file does not exists as a .npy file --> process the video to a tensor
+    """
+
+    # CASE IF VIDEOS ARE IN FRENCH
+    if data_size in ["data", "sample_data"]:
+        id_code = path[-11:][:7]
+        npy_path = os.path.join(path[:-11], "..", "videos-npy")
+
+    # CASE IF VIDEOS ARE IN ENGLISH
+    else:
+        id_code = path[-10:][:6]
+        npy_path = os.path.join(path[:-10], "..", "videos-npy")
+
+    # if npy file exists --> load this file
+    npy_file = os.path.join(npy_path, f"{id_code}.npy")
+    if os.path.isfile(npy_file):
+        frames = load_video_npy(npy_file)
+
+    # if npy file does not exist --> process the video
+    else:
+        frames = process_video(path)
+
+    return frames
+
+
+# load_video = process_video
 
 
 def get_transcript(path: str) -> List[str]:
@@ -98,19 +145,5 @@ def load_data(video_path: str):
     return frames, transcript
 
 
-
-
-
-
 if __name__ == '__main__':
-    # test_path_en = "/Users/ArthurPech/code/ssaulay/silentspeak/raw_data/sample_data_EN/transcripts/bbaf2n.align"
-    # print(load_alignments(test_path_en))
-    # print(num_to_char(load_alignments(test_path_en)))
-
-    # test_path_fr = "/Users/ArthurPech/code/ssaulay/silentspeak/raw_data/sample_data/transcripts/l_234_L01.txt"
-    # print(get_transcript(test_path_fr))
-    # print(num_to_char(get_transcript(test_path_fr)))
-
-    test_video_en = "/Users/ArthurPech/code/ssaulay/silentspeak/raw_data/sample_data_EN/videos/bbaf2n.mpg"
-    #print(load_video(test_video_en))
-    print(load_data(test_video_en))
+    pass
