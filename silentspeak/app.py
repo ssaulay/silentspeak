@@ -6,7 +6,7 @@ from params import data_path
 from moviepy.editor import VideoFileClip
 
 # API endpoint URL
-API_URL = "http://0.0.0.0:8080"
+API_URL = "http://172.17.0.1:8080"
 # API_URL = "http://localhost:8000"
 
 
