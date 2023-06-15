@@ -146,14 +146,15 @@ if __name__ == '__main__':
     # TEST PREDICTION
     model_name = "model_140623EN_AM1_6.h5"
     model = load_model(model_name)
+    model.summary()
 
     #model = instantiate_model(model_num = 1)
     #checkpoint_demo_EN = "/Users/ArthurPech/code/ssaulay/silentspeak/models/model_demo_EN_2/checkpoint"
     #model = load_model_weigths(model, checkpoint_demo_EN)
 
     #video_name = "Welcome to SilentSpeak.MOV" # --> ERROR
-    #video_name = "lrae5a - lay_red_at_e_five_again.mpg" # --> OK
-    video_name = "other_lipnet - place_red_in_a_zero_now.mpg" # --> OK
+    video_name = "lrae5a - lay_red_at_e_five_again.mpg" # --> OK
+    #video_name = "other_lipnet - place_red_in_a_zero_now.mpg" # --> OK
 
     video = os.path.join(data_path, "videos_demo", video_name)
     prediction = predict_video(model, video)

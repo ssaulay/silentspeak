@@ -188,11 +188,11 @@ def save_model(model):
 
 
 def load_model(model_filename: str):
+    """Load model from h5 file"""
+
     if model_target == "local":
         print("###### LOADING MODEL ######")
         print(f"load: {model_filename}")
-        
-    """Load model from h5 file"""
 
         model = tf.keras.models.load_model(
             os.path.join(models_path, model_filename),
@@ -216,9 +216,6 @@ def load_model(model_filename: str):
         print(latest_blob.name)
 
         return latest_model
-
-    """Load model"""
-
 
 
 def load_model_weigths(model, checkpoint: str = os.path.join(models_path, "checkpoint")):
