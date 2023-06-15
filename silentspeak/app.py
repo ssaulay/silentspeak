@@ -6,9 +6,9 @@ from params import data_path
 from moviepy.editor import VideoFileClip
 
 # API endpoint URL
-# API_URL = "https://silentspeak-5bao4s2ijq-ew.a.run.app/"
+API_URL = "https://silentspeak-5bao4s2ijq-ew.a.run.app/"
 # API_URL = "http://localhost:8080"
-API_URL = "http://0.0.0.0:8000"
+# API_URL = "http://0.0.0.0:8000"
 
 # Paths
 folder_path = os.path.join('silentspeak', 'tempDir')
@@ -119,7 +119,8 @@ if st.button("Predict") and video_file is not None:
 
     if response.status_code == 200:
         result = response.json()
-        scan.success(f"Prediction: {result['prediction']}")
+        # scan.success(f"Prediction: {result['prediction']}")
+        scan.markdown(f"<h1 class='title'>{result['prediction']}</h1>", unsafe_allow_html=True)
 
     else:
         st.error("Error occurred during prediction")
