@@ -1,7 +1,7 @@
 import os
 import tensorflow as tf
 import numpy as np
-import pandas as pd # NEW LINE
+import pandas as pd
 
 from silentspeak.loading import *
 from silentspeak.params import data_path, data_size, n_frames, n_frames_min, transcript_padding, filtered
@@ -14,42 +14,14 @@ def mappable_function(path:str) -> List[str]:
     return result
 
 
-# def load_data(
-#     batch_size = 2,
-#     padded_frames_shape = [n_frames,None,None,None],
-#     padded_transcripts_shape = [transcript_padding]
-# ):
-#     """Create a """
-
-#     if data_size in ["data", "sample_data"]:
-#         video_format = "avi" # Videos in French
-#     else:
-#         video_format = "mpg" # Videos in English
-
-#     # Only keep videos whose number of frames is between n_frames_min and n_frames
-#     all_videos = os.listdir(os.path.join(data_path, data_size, "videos"))
-#     all_videos = [vid for vid in all_videos if vid[-4:] == f".{video_format}"]
-#     filtered_videos = [vid for vid in all_videos if (df[df["video"] == vid].iloc[0]["n_frames"] >= n_frames_min) & (df[df["video"] == vid].iloc[0]["n_frames"] <= n_frames)]
-
-#     data = tf.data.Dataset.list_files(
-#         [os.path.join(data_path, data_size, "videos", video) for video in filtered_videos]
-#         )
-
-#     data = data.map(mappable_function)
-#     data = data.padded_batch(
-#         batch_size,
-#         padded_shapes = (padded_frames_shape, padded_transcripts_shape))
-#     data = data.prefetch(tf.data.AUTOTUNE)
-
-#     return data
-
-#def data_train_test(
-def load_data(
+def data_train_test(
     batch_size = 2,
     padded_frames_shape = [n_frames,None,None,None],
     padded_transcripts_shape = [transcript_padding],
     train_split = 0.8,
 ):
+    """Returns data, train and test (or, if train_split is not < 1, only returns data)"""
+
 
     if data_size in ["data", "sample_data"]:
         video_format = "avi" # Videos in French
@@ -70,9 +42,10 @@ def load_data(
             )
 
     else:
+
         data = tf.data.Dataset.list_files(
             os.path.join(data_path, data_size, "videos", f"*.{video_format}")
-        )
+            )
 
     n_vids = len(list(data))
 
@@ -93,36 +66,6 @@ def load_data(
         return data
 
 
-# def train_model_all(
-#     model_num = 1,
-#     epochs = 10,
-#     batch_size = 2,
-#     padded_frames_shape = [n_frames,None,None,None],
-#     padded_transcripts_shape = [transcript_padding],
-#     callbacks = [checkpoint_callback, schedule_callback]
-# ):
-#     """
-#     Preprocess and train the model on all data, without train-test split.
-#     To train a model with validation data, rather use the functions data_train_test and train_model
-#     """
-
-#     print("###### LOAD DATA ######")
-#     data = load_data(batch_size, padded_frames_shape, padded_transcripts_shape)
-
-#     print("###### LOAD AND COMPILE MODEL ######")
-#     model = load_and_compile_model(model_num)
-
-#     print("###### TRAIN MODEL ######")
-#     model.fit(
-#         data,
-#         epochs = epochs,
-#         callbacks = callbacks
-#         )
-
-#     return model
-
-
-
 def train_model(
     train,
     test = None,
@@ -134,9 +77,11 @@ def train_model(
     """Instantiate, compile and train a model with train data and validation data"""
 
     print("###### Load and compile model ######")
+
     model = load_and_compile_model(model_num)
 
     print("###### Train model ######")
+
     model.fit(
         x = train,
         validation_data = test,
@@ -153,7 +98,7 @@ if __name__ == '__main__':
     # --- TEST TRAINING ---
 
     batch_size = 2
-    data, train, test = load_data(batch_size = batch_size)
+    data, train, test = data_train_test(batch_size = batch_size)
     example_callback = ProduceExample(test, batch_size = batch_size)
     callbacks = [checkpoint_callback, schedule_callback, example_callback]
     # callbacks = [checkpoint_callback, schedule_callback]

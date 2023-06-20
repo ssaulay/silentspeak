@@ -12,7 +12,7 @@ filtered = True
 # -------- MODE --------
 
 data_source = "local" # "local" or "gcp" or "google"
-data_size = "data_EN" # "data", "sample_data", "data_EN" or "sample_data_EN"
+data_size = "sample_data_EN" # "data", "sample_data", "data_EN" or "sample_data_EN"
 model_target = os.environ.get("MODEL_TARGET")
 
 # -------- LOCAL DATA PATH --------
