@@ -7,7 +7,7 @@ n_frames_min = 0
 frame_h = 54 # --> 54
 frame_w = 80 # --> 80
 transcript_padding = 40 # 50 for French phonemes, 72 for french letters, 21 for English
-
+filtered = True
 
 # -------- MODE --------
 
