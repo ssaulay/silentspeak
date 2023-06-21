@@ -1,27 +1,43 @@
+"""Main program for loading data, training a model and evaluating it."""
+
 import os
 import tensorflow as tf
-import numpy as np
 import pandas as pd
 
 from silentspeak.loading import *
 from silentspeak.params import data_path, data_size, n_frames, n_frames_min, transcript_padding, filtered
 from silentspeak.model import load_and_compile_model, checkpoint_callback, schedule_callback, instantiate_model, load_model_weigths, predict_video, models_path, predict_test, save_model, load_model, predict, ProduceExample
-
+from silentspeak.metrics import CER, WER
 
 
 def mappable_function(path:str) -> List[str]:
+    """This function is used in the data_train_test function
+    and loads the videos and the transcripts in the dataset."""
     result = tf.py_function(load_data, [path], (tf.float32, tf.int64))
     return result
 
 
 def data_train_test(
-    batch_size = 2,
-    padded_frames_shape = [n_frames,None,None,None],
-    padded_transcripts_shape = [transcript_padding],
-    train_split = 0.8,
+    batch_size: int = 2,
+    padded_frames_shape: List[int] = [n_frames,None,None,None],
+    padded_transcripts_shape: List[int] = [transcript_padding],
+    train_split: float = 0.8,
 ):
-    """Returns data, train and test (or, if train_split is not < 1, only returns data)"""
+    """
+    This functions generates the dataset used to train the model.
+    The objects returned are prefetched tensorflow Dataset.
 
+    If train_split is set to a value between 0 and 1, it will returns
+    three objects: the full dataset, the train dataset and the test dataset.
+
+    If train_split is not between 0 and 1, the function will not perform
+    a train-test split, and it will only return one object: the full dataset.
+
+    When filtered is set to True in params.py, the function will refer
+    to the csv file data_path/n_frames.csv, in which the number of frames
+    is indicated video by video, and only videos whose number of frames
+    is between n_frames_min and n_frames will be retained in the final dataset.
+    """
 
     if data_size in ["data", "sample_data"]:
         video_format = "avi" # Videos in French
@@ -55,7 +71,7 @@ def data_train_test(
         padded_shapes = (padded_frames_shape, padded_transcripts_shape))
     data = data.prefetch(tf.data.AUTOTUNE)
 
-    if train_split < 1:
+    if train_split > 0 and train_split < 1:
         train_size = int(train_split * (n_vids / batch_size))
         train = data.take(train_size)
         test = data.skip(train_size)
@@ -74,7 +90,7 @@ def train_model(
     callbacks = [checkpoint_callback, schedule_callback]
     ):
 
-    """Instantiate, compile and train a model with train data and validation data"""
+    """This functions instantiates, compiles and trains a model."""
 
     print("###### Load and compile model ######")
 
@@ -92,31 +108,55 @@ def train_model(
     return model
 
 
+def evaluate_model(
+    model,
+    test
+    ):
+    """This function returns a dictionary containing two model evaluation metrics:
+    the Character Error Rate (CER) and the Word Error Rate (WER)."""
+
+    test_size = len(test)
+    for x,y in test.rebatch(test_size).take(1):
+        y_pred = model.predict(x)
+
+    cer_result = CER(y, y_pred, test_size)
+    wer_result = WER(y, y_pred, test_size)
+
+    results = {
+        "cer" : cer_result,
+        "wer" : wer_result
+    }
+
+    return results
+
+
+
 if __name__ == '__main__':
 
 
-    # --- TEST TRAINING ---
+    # --- TRAINING ---
 
-    batch_size = 2
-    data, train, test = data_train_test(batch_size = batch_size)
-    example_callback = ProduceExample(test, batch_size = batch_size)
-    callbacks = [checkpoint_callback, schedule_callback, example_callback]
-    # callbacks = [checkpoint_callback, schedule_callback]
+    # batch_size = 2
+    # data, train, test = data_train_test(batch_size = batch_size)
+    # example_callback = ProduceExample(test, batch_size = batch_size)
+    # callbacks = [checkpoint_callback, schedule_callback, example_callback]
+    # # callbacks = [checkpoint_callback, schedule_callback]
 
-    model = train_model(
-        train,
-        test,
-        model_num = 1,
-        epochs = 2,
-        callbacks = callbacks
-    )
+    # model = train_model(
+    #     train,
+    #     test,
+    #     model_num = 1,
+    #     epochs = 2,
+    #     callbacks = callbacks
+    # )
 
 
-    # --- TEST PREDICTION ---
+
+    # --- PREDICTION ---
 
     # model_name = "model_def_EN_1-6.h5"
     # model = load_model(model_name)
-    #model.summary()
+    # model.summary()
 
     # video_name = "Welcome to SilentSpeak.MOV"
     # video_name = "lrae5a - lay_red_at_e_five_again.mpg"
@@ -127,5 +167,11 @@ if __name__ == '__main__':
 
     # video = os.path.join(data_path, "videos_demo", video_name)
     # prediction = predict_video(model, video)
+
+
+    # --- EVALUATION ---
+
+    # evaluation_result = evaluate_model(model, test)
+    # print(evaluation_result)
 
     pass
