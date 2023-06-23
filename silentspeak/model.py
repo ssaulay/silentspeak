@@ -73,7 +73,6 @@ def model_1():
 
     model = Sequential()
 
-    # >>>> Check input shape in line below
     model.add(Conv3D(64, 3, input_shape=(n_frames, frame_h, frame_w, 1), padding='same'))
     model.add(Activation('relu'))
     model.add(MaxPool3D((1,2,2)))
@@ -95,7 +94,6 @@ def model_1():
     model.add(Dropout(.5))
 
     model.add(Dense(char_to_num.vocabulary_size()+1, kernel_initializer='he_normal', activation='softmax'))
-    #model.add(Dense(vocab_size, kernel_initializer='he_normal', activation='softmax'))
 
     print(model.summary())
 
@@ -276,9 +274,6 @@ def predict(
         input_length=[n_frames],
         greedy=True)[0][0].numpy()
 
-
-    #print(decoded.numpy())
-
     if vocab_type == "p" :
         decoded_string = tf.strings.reduce_join(
             [num_to_char(tf.argmax(x)) for x in yhat[0]],
@@ -298,12 +293,12 @@ def predict_video(model, video_path: str) -> str:
     """
     Takes a video as an input and returns a prediction in string
 
-    inputs:
-    >> model: the model that will returns the prediction from the video
-    >> video_path: the path to the video to predict
+    Args:
+        model: the model that will returns the prediction from the video
+        video_path: the path to the video to predict
 
-    output:
-    >> the prediction expressed as a string
+    Returns:
+        the prediction expressed as a string
     """
 
     processed_video = process_video(video_path)
