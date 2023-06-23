@@ -10,9 +10,19 @@ from silentspeak.model import load_and_compile_model, checkpoint_callback, sched
 from silentspeak.metrics import CER, WER
 
 
-def mappable_function(path:str) -> List[str]:
-    """This function is used in the data_train_test function
-    and loads the videos and the transcripts in the dataset."""
+def mappable_function(path:str) -> List[List]:
+    """This function loads the videos and the transcripts in the dataset.
+
+    This function is used in the data_train_test function.
+
+    Args:
+        path (str): The path to a video file
+
+    Returns:
+        A list of two elements:
+        1- A tensor representing the video frames cropped to mouth-size
+        2- A tensor with the vectorized transcript
+    """
     result = tf.py_function(load_data, [path], (tf.float32, tf.int64))
     return result
 
@@ -25,18 +35,28 @@ def data_train_test(
 ):
     """
     This functions generates the dataset used to train the model.
-    The objects returned are prefetched tensorflow Dataset.
 
-    If train_split is set to a value between 0 and 1, it will returns
-    three objects: the full dataset, the train dataset and the test dataset.
-
-    If train_split is not between 0 and 1, the function will not perform
-    a train-test split, and it will only return one object: the full dataset.
+    It splits the data between train and test if train_split is set between 0 and 1.
 
     When filtered is set to True in params.py, the function will refer
     to the csv file data_path/n_frames.csv, in which the number of frames
-    is indicated video by video, and only videos whose number of frames
-    is between n_frames_min and n_frames will be retained in the final dataset.
+    is indicated video by video. In this case, it will only retain videos
+    whose number of frames is between n_frames_min and n_frames.
+
+    Args:
+        batch_size (str): The number of video/transcript couple in each batch
+        padded_frames_shape (list): The padding dimension of the videos
+        padded_transcripts_shape (list): The padding dimension of the transcripts
+        train_split (float):
+
+    Returns:
+        A prefetched tensorflow Dataset or a tuple of prefeteched tensorflow Datasets.
+
+        If train_split is set to a value between 0 and 1, it will returns
+        three objects: the full dataset, the train dataset and the test dataset.
+
+        If train_split is not set between 0 and 1, the function will not perform
+        a train-test split, and it will only return one object: the full dataset.
     """
 
     if data_size in ["data", "sample_data"]:
@@ -85,12 +105,24 @@ def data_train_test(
 def train_model(
     train,
     test = None,
-    model_num = 1,
-    epochs = 10,
+    model_num: int = 1,
+    epochs: int = 10,
     callbacks = [checkpoint_callback, schedule_callback]
-    ):
+    ) -> tf.keras.Model:
 
-    """This functions instantiates, compiles and trains a model."""
+    """This functions instantiates, compiles and trains a model.
+
+    Args:
+        train: The train dataset (A prefetched tensorflow Dataset)
+        test: The validation dataset (A prefetched tensorflow Dataset)
+        model_num (int): The model number as defined in model.py (1 or 2)
+        epochs (int): The number of training epochs
+        callbacks: The callbacks used during training
+
+    Returns:
+        A trained model
+
+    """
 
     print("###### Load and compile model ######")
 
@@ -111,9 +143,20 @@ def train_model(
 def evaluate_model(
     model,
     test
-    ):
+    ) -> dict[str, float]:
     """This function returns a dictionary containing two model evaluation metrics:
-    the Character Error Rate (CER) and the Word Error Rate (WER)."""
+    the Character Error Rate (CER) and the Word Error Rate (WER).
+
+    Args:
+        model: The model to evaluate
+        test: The dataset used for evaluation (A prefetched tensorflow Dataset)
+
+    Returns:
+        A dictionnary with the two evaluation metrics.
+        The dictionnary keys are "cer" and "wer" and their corresponding values
+        the model performance on these metrics.
+
+    """
 
     test_size = len(test)
     for x,y in test.rebatch(test_size).take(1):
@@ -133,6 +176,12 @@ def evaluate_model(
 
 if __name__ == '__main__':
 
+    # test = mappable_function("raw_data/sample_data_EN/videos/bbaf2n.mpg")
+    # print(test)
+    # print(type(test))
+    # print(len(test))
+    # print(test[1])
+
 
     # --- TRAINING ---
 
@@ -151,7 +200,6 @@ if __name__ == '__main__':
     # )
 
 
-
     # --- PREDICTION ---
 
     # model_name = "model_def_EN_1-6.h5"
@@ -161,7 +209,7 @@ if __name__ == '__main__':
     # video_name = "Welcome to SilentSpeak.MOV"
     # video_name = "lrae5a - lay_red_at_e_five_again.mpg"
     # video_name = "other_lipnet - place_red_in_a_zero_now.mpg"
-    # video_name = "KING CHARLES.mp4" --> OK
+    # video_name = "KING CHARLES.mp4"
     # video_name = "lrae5a - lay_red_at_e_five_again.mp4"
     # video_name = "other_lipnet - place_red_in_a_zero_now.mp4"
 
