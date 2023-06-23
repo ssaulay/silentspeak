@@ -1,6 +1,8 @@
+"""Functions to process the videos and the transcripts and feed the models with clean data"""
+
 import cv2
 import tensorflow as tf
-from typing import List
+from typing import List, Tuple
 import os
 import numpy as np
 from silentspeak.params import data_size, vocab_type, vocab, frame_h, frame_w, accents_dict, n_frames
@@ -12,19 +14,50 @@ num_to_char = tf.keras.layers.StringLookup(
 )
 
 
+def save_to_npy(video_path: str, npy_dir: str):
+    """Process a video and save it as a .npy file
+
+    Args:
+        video_path (str): The path to the video that will be saved as a .npy file
+        npy_dir (str) : The path to the directory where the .npy file will be saved
+    """
+
+    video_tensor = process_video(video_path)
+    video_array = video_tensor.numpy()
+
+    npy_filename = f"{os.path.basename(video_path)[:-4]}.npy"
+
+    np.save(
+        file = os.path.join(npy_dir, npy_filename),
+        arr = video_array
+    )
+
+
 def load_video_npy(path: str):
     """
     Load a .npy file representing of a video cropped to mouth-size and convert it into a tensor.
+
+    Args:
+        path (str): The path to the video saved as a .npy file
+
+    Returns:
+        A tensor representing the video cropped to mouth-size
     """
 
     video_np = np.load(path)
-    # video_tensor = tf.constant(video_np)
     video_tensor = tf.cast(video_np, tf.float32)
     return video_tensor
 
 
 def process_video(path: str):
-    """Process the video into a tensor representing the video cropped to mouth-size"""
+    """Process the video into a tensor representing the video cropped to mouth-size
+
+    Args:
+        path (str): The path to the video
+
+    Returns:
+        A tensor representing the video frames cropped to mouth-size
+    """
 
     y_px_min, y_px_max, x_px_min, x_px_max = bounding_box(path=path)
     cap = cv2.VideoCapture(path)
@@ -49,8 +82,15 @@ def process_video(path: str):
 def load_video(path:str) -> List[float]:
     """
     Load the tensor representation of a video cropped to mouth-size.
-    >> If the file exists as a .npy file --> load this file into a tensor
-    >> If the file does not exists as a .npy file --> process the video to a tensor
+
+    If the file exists as a .npy file, the function will load this file into a tensor.
+    If the file does not exists as a .npy file, the function will process the video to a tensor.
+
+    Args:
+        path (str): The path to the video
+
+    Returns:
+        A tensor representing the video frames cropped to mouth-size
     """
 
     # CASE IF VIDEOS ARE IN FRENCH
@@ -75,11 +115,19 @@ def load_video(path:str) -> List[float]:
     return frames
 
 
-# load_video = process_video
+def get_transcript(path: str) -> List[int]:
+    """Get the file path of a transcript and return a vectorized truth transcript.
 
+    This function is used when transcripts are in French.
 
-def get_transcript(path: str) -> List[str]:
-    """Get the file path of a transcript and return a clean list with the truth transcript."""
+    Args:
+        path (str): the path to the transcript
+
+    Returns:
+        A tensor with the vectorized transcript. For example:
+        tf.Tensor([18  6  5  8 13], shape=(5,), dtype=int64)
+
+    """
     with open(path, "r") as f:
         lines = f.readlines()
         lines = [line.split() for line in lines]
@@ -102,8 +150,19 @@ def get_transcript(path: str) -> List[str]:
     return char_to_num(transcript)
 
 
-def load_alignments(path:str) -> List[str]:
-    """Load the English transcripts"""
+def load_alignments(path:str) -> List[int]:
+    """Get the file path of a transcript and return a vectorized truth transcript.
+
+    This function is used when transcripts are in English.
+
+    Args:
+        path (str): the path to the transcript
+
+    Returns:
+        A tensor with the vectorized transcript. For example:
+        tf.Tensor([18  6  5  8 13], shape=(5,), dtype=int64)
+
+    """
     with open(path, 'r') as f:
         lines = f.readlines()
     tokens = []
@@ -114,12 +173,16 @@ def load_alignments(path:str) -> List[str]:
     return char_to_num(tf.reshape(tf.strings.unicode_split(tokens, input_encoding='UTF-8'), (-1)))[1:]
 
 
-def load_data(video_path: str):
-    """Load the frames and the phonems for a single video
-    (i.e. a single sentence pronounced by a single locutor)
+def load_data(video_path: str) -> Tuple[List[float], List[int]]:
+    """Load the frames and the transcript of a video
 
-    inputs:
-    >> video_path: the path of a video
+    Args:
+        video_path (str): the path of a video
+
+    Returns:
+        A tuple of two elements:
+        1- A tensor representing the video frames cropped to mouth-size
+        2- A tensor with the vectorized transcript
     """
 
     try:
@@ -128,16 +191,14 @@ def load_data(video_path: str):
         video_path = bytes.decode(video_path.numpy())
         frames = load_video(video_path)
 
-    # CASE IF VIDEOS ARE IN FRENCH
+    # If videos are in French
     if data_size in ["data", "sample_data"]:
-
         id_code = video_path[-11:][:7]
         transcript_path = os.path.join(video_path[:-11], "..", "transcripts", f"{vocab_type}_{id_code}.txt")
         transcript = get_transcript(transcript_path)
 
-    # CASE IF VIDEOS ARE IN ENGLISH
+    # If videos are in English
     else:
-
         id_code = video_path[-10:][:6]
         transcript_path = os.path.join(video_path[:-10], "..", "transcripts", f"{id_code}.align")
         transcript = load_alignments(transcript_path)
